@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "tsx watch src/server.ts",
+    "worker": "tsx src/workers/index.ts",
     "build": "tsc",
     "start": "node dist/server.js"
   },
@@ -16,11 +17,14 @@
     "@supabase/ssr": "^0.12.5",
     "@supabase/supabase-js": "^2.112.4",
     "bcrypt": "^6.0.0",
+    "bullmq": "^6.3.4",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
+    "ioredis": "^6.0.0",
     "jsonwebtoken": "^9.0.3",
+    "playwright": "^1.63.0",
     "zod": "^4.5.4"
   },
   "devDependencies": {

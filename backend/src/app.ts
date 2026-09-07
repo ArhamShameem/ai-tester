@@ -2,6 +2,16 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import authRoutes from "./routes/auth.route";
+import projectRoutes from "./routes/project.route";
+import analysisRoutes from "./routes/analysis.route";
+import {
+  projectTestCaseRouter,
+  testCaseRouter
+} from "./routes/test-case.route";
+import {
+  projectTestRunRouter,
+  testRunRouter
+} from "./routes/test-run.route";
 import { errorMiddleware } from "./middleware/error.middleware";
 
 const app = express();
@@ -33,6 +43,12 @@ app.get("/api/health", (req, res) => {
 });
 
 app.use("/api/auth", authRoutes);
+app.use("/api/projects", projectRoutes);
+app.use("/api/projects", analysisRoutes);
+app.use("/api/projects", projectTestCaseRouter);
+app.use("/api/test-cases", testCaseRouter);
+app.use("/api/projects", projectTestRunRouter);
+app.use("/api/test-runs", testRunRouter);
 app.use(errorMiddleware);
 
 export default app;

@@ -6,6 +6,27 @@ import {
   ApiErrorPayload,
   ApiFieldError
 } from "../types/auth";
+import {
+  CreateProjectInput,
+  UpdateProjectInput,
+  ProjectsResponse,
+  ProjectResponse
+} from "../types/project";
+import {
+  AnalysisResponse,
+  StructuredAnalysis
+} from "../types/analysis";
+import {
+  GenerateTestCasesResponse,
+  TestCasesResponse,
+  TestCaseResponse
+} from "../types/test-case";
+import {
+  StartTestRunResponse,
+  TestRunsResponse,
+  TestRunResponse,
+  TestResultsResponse
+} from "../types/test-run";
 
 const RAW_API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -133,5 +154,96 @@ export const authApi = {
 
   async getCurrentUser(): Promise<AuthResponse> {
     return api.get<AuthResponse>("/auth/me");
+  }
+};
+
+/**
+ * Dedicated Project API methods
+ */
+export const projectApi = {
+  async getProjects(): Promise<ProjectsResponse> {
+    return api.get<ProjectsResponse>("/projects");
+  },
+
+  async getProject(id: string): Promise<ProjectResponse> {
+    return api.get<ProjectResponse>(`/projects/${id}`);
+  },
+
+  async createProject(data: CreateProjectInput): Promise<ProjectResponse> {
+    return api.post<ProjectResponse>("/projects", data);
+  },
+
+  async updateProject(
+    id: string,
+    data: UpdateProjectInput
+  ): Promise<ProjectResponse> {
+    return api.patch<ProjectResponse>(`/projects/${id}`, data);
+  },
+
+  async deleteProject(id: string): Promise<{ message: string }> {
+    return api.delete<{ message: string }>(`/projects/${id}`);
+  }
+};
+
+/**
+ * Dedicated Application Analysis API methods (Playwright)
+ */
+export const analysisApi = {
+  async analyzeProject(projectId: string): Promise<AnalysisResponse> {
+    return api.post<AnalysisResponse>(`/projects/${projectId}/analyze`);
+  },
+
+  async getLatestAnalysis(
+    projectId: string
+  ): Promise<{ analysis: StructuredAnalysis | null }> {
+    return api.get<{ analysis: StructuredAnalysis | null }>(
+      `/projects/${projectId}/analysis`
+    );
+  }
+};
+
+/**
+ * Dedicated Test Case Management & AI Generation API
+ */
+export const testCaseApi = {
+  async generateTestCases(
+    projectId: string
+  ): Promise<GenerateTestCasesResponse> {
+    return api.post<GenerateTestCasesResponse>(
+      `/projects/${projectId}/test-cases/generate`
+    );
+  },
+
+  async getTestCases(projectId: string): Promise<TestCasesResponse> {
+    return api.get<TestCasesResponse>(`/projects/${projectId}/test-cases`);
+  },
+
+  async getTestCase(testCaseId: string): Promise<TestCaseResponse> {
+    return api.get<TestCaseResponse>(`/test-cases/${testCaseId}`);
+  },
+
+  async deleteTestCase(testCaseId: string): Promise<{ message: string }> {
+    return api.delete<{ message: string }>(`/test-cases/${testCaseId}`);
+  }
+};
+
+/**
+ * Dedicated Test Run & Execution API
+ */
+export const testRunApi = {
+  async startTestRun(projectId: string): Promise<StartTestRunResponse> {
+    return api.post<StartTestRunResponse>(`/projects/${projectId}/test-runs`);
+  },
+
+  async getTestRuns(projectId: string): Promise<TestRunsResponse> {
+    return api.get<TestRunsResponse>(`/projects/${projectId}/test-runs`);
+  },
+
+  async getTestRun(testRunId: string): Promise<TestRunResponse> {
+    return api.get<TestRunResponse>(`/test-runs/${testRunId}`);
+  },
+
+  async getTestResults(testRunId: string): Promise<TestResultsResponse> {
+    return api.get<TestResultsResponse>(`/test-runs/${testRunId}/results`);
   }
 };
