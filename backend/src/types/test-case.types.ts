@@ -22,6 +22,12 @@ export interface TestCaseDefinition {
   expectedResult: string;
 }
 
+export interface TestGenerationOptions {
+  context?: string;
+  count?: number;
+  replaceExisting?: boolean;
+}
+
 export interface GeneratedTestCasesOutput {
   testCases: TestCaseDefinition[];
   source: string;

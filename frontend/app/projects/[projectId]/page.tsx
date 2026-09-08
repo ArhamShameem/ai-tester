@@ -13,7 +13,7 @@ import {
 } from "../../../lib/api";
 import { Project } from "../../../types/project";
 import { StructuredAnalysis } from "../../../types/analysis";
-import { TestCase } from "../../../types/test-case";
+import { TestCase, GenerateTestCasesOptions } from "../../../types/test-case";
 import { TestRun } from "../../../types/test-run";
 import { Tabs } from "../../../components/ui/tabs";
 import { Button } from "../../../components/ui/button";
@@ -26,6 +26,7 @@ import { ApplicationAnalysisView } from "../../../components/projects/applicatio
 import { TestCaseList } from "../../../components/projects/test-case-list";
 import { TestRunList } from "../../../components/projects/test-run-list";
 import { TestRunDetail } from "../../../components/projects/test-run-detail";
+import { GenerateTestModal } from "../../../components/projects/generate-test-modal";
 
 function ProjectDetailsContent() {
   const params = useParams();
@@ -47,6 +48,7 @@ function ProjectDetailsContent() {
   const [testCases, setTestCases] = useState<TestCase[]>([]);
   const [isLoadingTestCases, setIsLoadingTestCases] = useState(true);
   const [isGeneratingTestCases, setIsGeneratingTestCases] = useState(false);
+  const [isGenerateModalOpen, setIsGenerateModalOpen] = useState(false);
 
   // Test Runs state
   const [testRuns, setTestRuns] = useState<TestRun[]>([]);
@@ -139,11 +141,20 @@ function ProjectDetailsContent() {
     }
   }, [projectId, fetchProject, fetchLatestAnalysis, fetchTestCases, fetchTestRuns]);
 
-  const handleGenerateTestCases = async () => {
+  const handleGenerateTestCases = async (options?: GenerateTestCasesOptions) => {
     setIsGeneratingTestCases(true);
     setTestFeedback(null);
     try {
-      const data = await testCaseApi.generateTestCases(projectId);
+      const cleanOptions =
+        options && typeof options === "object" && !("nativeEvent" in options) && !("target" in options)
+          ? {
+              context: typeof options.context === "string" ? options.context : undefined,
+              count: typeof options.count === "number" ? options.count : undefined,
+              replaceExisting: Boolean(options.replaceExisting)
+            }
+          : undefined;
+
+      const data = await testCaseApi.generateTestCases(projectId, cleanOptions);
       setTestCases(data.testCases);
       setTestFeedback({ text: data.message, variant: "success" });
       setActiveTab("test-cases");
@@ -154,6 +165,19 @@ function ProjectDetailsContent() {
       });
     } finally {
       setIsGeneratingTestCases(false);
+    }
+  };
+
+  const handleClearTestSuite = async () => {
+    try {
+      const data = await testCaseApi.clearTestCases(projectId);
+      setTestCases([]);
+      setTestFeedback({ text: data.message, variant: "success" });
+    } catch (err) {
+      setTestFeedback({
+        text: err instanceof Error ? err.message : "Failed to clear test suite",
+        variant: "error"
+      });
     }
   };
 
@@ -398,27 +422,28 @@ function ProjectDetailsContent() {
 
           {/* Project Header Title & URL */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4">
-            <div className="space-y-1 min-w-0">
-              <div className="flex items-center gap-3">
-                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white truncate">
+            <div className="space-y-1 min-w-0 flex-1">
+              <div className="flex items-center gap-3 min-w-0">
+                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white truncate max-w-xl" title={project.name}>
                   {project.name}
                 </h1>
-                <Badge variant="teal">Active</Badge>
+                <Badge variant="teal" className="shrink-0">Active</Badge>
               </div>
 
-              <div className="flex items-center gap-2 text-xs text-slate-400 truncate">
-                <span>Target:</span>
+              <div className="flex flex-wrap items-center gap-2 text-xs text-slate-400 min-w-0 max-w-full">
+                <span className="shrink-0">Target:</span>
                 <a
                   href={project.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="font-mono text-teal-400 hover:underline flex items-center gap-1 truncate"
+                  className="font-mono text-teal-400 hover:underline inline-flex items-center gap-1 min-w-0 max-w-xs sm:max-w-md md:max-w-xl truncate"
+                  title={project.url}
                 >
-                  {project.url}
+                  <span className="truncate">{project.url}</span>
                   <svg
                     width={12}
                     height={12}
-                    className="w-3 h-3"
+                    className="w-3 h-3 shrink-0"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -431,8 +456,8 @@ function ProjectDetailsContent() {
                     />
                   </svg>
                 </a>
-                <span>•</span>
-                <span>
+                <span className="shrink-0">•</span>
+                <span className="shrink-0">
                   Created {new Date(project.createdAt).toLocaleDateString()}
                 </span>
               </div>
@@ -475,7 +500,7 @@ function ProjectDetailsContent() {
                 <Button
                   variant="primary"
                   size="md"
-                  onClick={handleGenerateTestCases}
+                  onClick={() => setIsGenerateModalOpen(true)}
                   isLoading={isGeneratingTestCases}
                   disabled={isGeneratingTestCases || isAnalyzing}
                   className="shadow-md shadow-teal-900/40"
@@ -541,8 +566,8 @@ function ProjectDetailsContent() {
                     <h3 className="text-base font-bold text-teal-200">
                       Playwright Inspection In Progress
                     </h3>
-                    <p className="text-xs text-slate-400 leading-relaxed">
-                      Launching headless Chromium session, resolving <code className="text-teal-300 font-mono">{project.url}</code>, discovering interactive forms, inputs, buttons, and indexing routes. This typically takes 5–15 seconds.
+                    <p className="text-xs text-slate-400 leading-relaxed break-words">
+                      Launching headless Chromium session, resolving <code className="text-teal-300 font-mono break-all">{project.url}</code>, discovering interactive forms, inputs, buttons, and indexing routes. This typically takes 5–15 seconds.
                     </p>
                   </div>
                 </Card>
@@ -572,7 +597,7 @@ function ProjectDetailsContent() {
                       <Button
                         variant="primary"
                         size="md"
-                        onClick={handleGenerateTestCases}
+                        onClick={() => setIsGenerateModalOpen(true)}
                         isLoading={isGeneratingTestCases}
                         disabled={isGeneratingTestCases}
                         className="shadow-md shadow-teal-900/40 whitespace-nowrap"
@@ -596,8 +621,8 @@ function ProjectDetailsContent() {
                     <CardTitle className="text-xl">
                       Playwright Application Analyzer
                     </CardTitle>
-                    <CardDescription>
-                      Automatically inspect and map interactive DOM elements, forms, buttons, inputs, and routes on <code className="text-teal-300 font-mono">{project.url}</code>.
+                    <CardDescription className="break-words [overflow-wrap:anywhere]">
+                      Automatically inspect and map interactive DOM elements, forms, buttons, inputs, and routes on <code className="text-teal-300 font-mono break-all">{project.url}</code>.
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
@@ -686,7 +711,9 @@ function ProjectDetailsContent() {
                 isGenerating={isGeneratingTestCases}
                 hasAnalysis={!!analysis}
                 onGenerate={handleGenerateTestCases}
+                onOpenGenerateModal={() => setIsGenerateModalOpen(true)}
                 onDelete={handleDeleteTestCase}
+                onClearSuite={handleClearTestSuite}
                 onRunAll={handleStartTestRun}
                 isRunningTests={isRunningTests}
               />
@@ -836,6 +863,15 @@ function ProjectDetailsContent() {
         project={project}
         onClose={() => setIsDeleteDialogOpen(false)}
         onDeleted={handleProjectDeleted}
+      />
+
+      {/* Generate AI Test Cases Modal */}
+      <GenerateTestModal
+        isOpen={isGenerateModalOpen}
+        onClose={() => setIsGenerateModalOpen(false)}
+        onGenerate={handleGenerateTestCases}
+        isGenerating={isGeneratingTestCases}
+        existingCount={testCases.length}
       />
     </div>
   );

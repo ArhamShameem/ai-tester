@@ -139,13 +139,16 @@ export function TestRunDetail({ runId, onBack }: TestRunDetailProps) {
               </h2>
               {getStatusBadge(run.status)}
             </div>
-            <div className="text-xs text-slate-400 flex flex-wrap items-center gap-2">
-              <span>Target:</span>
-              <span className="text-teal-300 font-mono">
+            <div className="text-xs text-slate-400 flex flex-wrap items-center gap-2 min-w-0 max-w-full">
+              <span className="shrink-0">Target:</span>
+              <span
+                className="text-teal-300 font-mono break-all line-clamp-1 max-w-xl inline-block"
+                title={run.project?.url}
+              >
                 {run.project?.url || "N/A"}
               </span>
-              <span>•</span>
-              <span>Created {new Date(run.createdAt).toLocaleString()}</span>
+              <span className="shrink-0">•</span>
+              <span className="shrink-0">Created {new Date(run.createdAt).toLocaleString()}</span>
             </div>
           </div>
         </div>
@@ -227,17 +230,17 @@ export function TestRunDetail({ runId, onBack }: TestRunDetailProps) {
             >
               <CardHeader className="pb-3 pt-4 px-5">
                 <div className="flex items-start justify-between gap-4">
-                  <div className="space-y-1 min-w-0">
+                  <div className="space-y-1 min-w-0 flex-1">
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-mono font-bold text-slate-500">
+                      <span className="text-xs font-mono font-bold text-slate-500 shrink-0">
                         #{idx + 1}
                       </span>
-                      <CardTitle className="text-base text-slate-100">
+                      <CardTitle className="text-base text-slate-100 break-words [overflow-wrap:anywhere]">
                         {result.testCase?.title || `Test Case ${result.testCaseId}`}
                       </CardTitle>
                     </div>
                     {result.testCase?.description && (
-                      <p className="text-xs text-slate-400 leading-relaxed">
+                      <p className="text-xs text-slate-400 leading-relaxed break-words [overflow-wrap:anywhere]">
                         {result.testCase.description}
                       </p>
                     )}
@@ -261,7 +264,7 @@ export function TestRunDetail({ runId, onBack }: TestRunDetailProps) {
               <CardContent className="px-5 pb-5 pt-0 space-y-4">
                 {/* Expected Result */}
                 {result.testCase?.expectedResult && (
-                  <div className="text-xs text-slate-400">
+                  <div className="text-xs text-slate-400 break-words [overflow-wrap:anywhere]">
                     <strong className="text-slate-300">Expected: </strong>
                     <span className="italic">{result.testCase.expectedResult}</span>
                   </div>
@@ -273,7 +276,7 @@ export function TestRunDetail({ runId, onBack }: TestRunDetailProps) {
                     <div className="text-2xs font-semibold uppercase tracking-wider text-red-400">
                       Playwright Error Trace
                     </div>
-                    <pre className="bg-slate-950 border border-red-900/40 rounded-lg p-3 text-xs font-mono text-red-300 overflow-x-auto whitespace-pre-wrap leading-relaxed">
+                    <pre className="bg-slate-950 border border-red-900/40 rounded-lg p-3 text-xs font-mono text-red-300 overflow-x-auto whitespace-pre-wrap break-all leading-relaxed max-w-full">
                       {result.error}
                     </pre>
                   </div>
@@ -353,7 +356,7 @@ export function TestRunDetail({ runId, onBack }: TestRunDetailProps) {
                       <div className="text-2xs font-semibold uppercase tracking-wider text-slate-400">
                         Likely Root Cause
                       </div>
-                      <div className="text-sm font-semibold text-white">
+                      <div className="text-sm font-semibold text-white break-words [overflow-wrap:anywhere]">
                         {analysis.rootCause}
                       </div>
                     </div>
@@ -363,7 +366,7 @@ export function TestRunDetail({ runId, onBack }: TestRunDetailProps) {
                       <div className="text-2xs font-semibold uppercase tracking-wider text-slate-400">
                         Explanation
                       </div>
-                      <p className="text-xs text-slate-300 leading-relaxed">
+                      <p className="text-xs text-slate-300 leading-relaxed break-words [overflow-wrap:anywhere]">
                         {analysis.explanation}
                       </p>
                     </div>
@@ -373,7 +376,7 @@ export function TestRunDetail({ runId, onBack }: TestRunDetailProps) {
                       <div className="text-2xs font-semibold uppercase tracking-wider text-amber-300">
                         Suggested Fix
                       </div>
-                      <p className="text-xs text-amber-100 font-mono leading-relaxed">
+                      <p className="text-xs text-amber-100 font-mono leading-relaxed break-words [overflow-wrap:anywhere]">
                         {analysis.suggestedFix}
                       </p>
                     </div>

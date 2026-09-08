@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { TestCaseService } from "../services/test-case.service";
+import { generateTestCasesRequestSchema } from "../schemas/test-case.schema";
 
 export const generateTestCases = async (
   req: Request,
@@ -11,9 +12,13 @@ export const generateTestCases = async (
       ? req.params.projectId[0]
       : req.params.projectId;
 
+    const validatedOptions = generateTestCasesRequestSchema.safeParse(req.body || {});
+    const options = validatedOptions.success ? validatedOptions.data : undefined;
+
     const result = await TestCaseService.generateTestCasesForProject(
       req.user!.id,
-      projectId
+      projectId,
+      options
     );
 
     return res.status(200).json(result);
@@ -87,3 +92,25 @@ export const deleteTestCase = async (
     next(error);
   }
 };
+
+export const clearProjectTestCases = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const projectId = Array.isArray(req.params.projectId)
+      ? req.params.projectId[0]
+      : req.params.projectId;
+
+    const result = await TestCaseService.clearAllTestCasesForProject(
+      req.user!.id,
+      projectId
+    );
+
+    return res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+

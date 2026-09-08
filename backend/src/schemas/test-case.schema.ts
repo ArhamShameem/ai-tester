@@ -49,3 +49,10 @@ export const updateTestCaseSchema = z.object({
   steps: z.array(testStepSchema).min(1).optional(),
   expectedResult: z.string().min(1).optional()
 });
+
+export const generateTestCasesRequestSchema = z.object({
+  context: z.string().max(2000).optional(),
+  count: z.number().int().min(1).max(15).optional(),
+  replaceExisting: z.boolean().optional()
+});
+

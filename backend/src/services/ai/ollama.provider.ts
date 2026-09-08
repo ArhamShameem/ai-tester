@@ -6,7 +6,8 @@ import {
   GeneratedTestCasesOutput,
   FailureAnalysisInput,
   FailureAnalysisResult,
-  TestActionType
+  TestActionType,
+  TestGenerationOptions
 } from "../../types/test-case.types";
 import {
   generatedTestCasesSchema,
@@ -27,20 +28,34 @@ export class OllamaProvider implements AIProvider {
   }
 
   /**
-   * Generates structured functional test cases from application analysis.
+   * Generates structured functional test cases from application analysis with optional user context.
    */
-  async generateTestCases(analysis: StructuredAnalysis): Promise<GeneratedTestCasesOutput> {
-    const prompt = buildTestGenerationPrompt(analysis);
+  async generateTestCases(
+    analysis: StructuredAnalysis,
+    options?: TestGenerationOptions
+  ): Promise<GeneratedTestCasesOutput> {
+    const prompt = buildTestGenerationPrompt(analysis, options);
+    const targetCount = options?.count ? Math.min(15, Math.max(1, options.count)) : 5;
+    const numPredict = Math.min(3072, Math.max(768, targetCount * 240));
+    const timeoutMs = Math.min(360000, Math.max(180000, targetCount * 45000));
 
     try {
-      console.log(`[OllamaProvider] Calling Ollama at ${this.baseUrl} with model: ${this.model}...`);
-      const rawResponse = await this.callOllamaApi(prompt, 180000);
+      console.log(
+        `[OllamaProvider] Calling Ollama (${this.model}) for ${targetCount} tests${
+          options?.context ? ` with context: "${options.context.slice(0, 50)}..."` : ""
+        }...`
+      );
+      const rawResponse = await this.callOllamaApi(prompt, timeoutMs, {
+        num_predict: numPredict
+      });
       const parsedJson = this.extractAndParseJson(rawResponse);
       const sanitizedCases = this.sanitizeTestCases(parsedJson, analysis.url);
       const validated = generatedTestCasesSchema.safeParse({ testCases: sanitizedCases });
 
       if (validated.success && validated.data.testCases.length > 0) {
-        console.log(`[OllamaProvider] Successfully generated ${validated.data.testCases.length} tests using Ollama (${this.model})`);
+        console.log(
+          `[OllamaProvider] Successfully generated ${validated.data.testCases.length} tests using Ollama (${this.model})`
+        );
         return {
           testCases: validated.data.testCases,
           source: `Ollama (${this.model})`
@@ -58,7 +73,7 @@ export class OllamaProvider implements AIProvider {
     }
 
     // Resilient fallback: Synthesize deterministic high-value test cases from crawled elements
-    const fallbackTests = this.generateHeuristicTestCases(analysis);
+    const fallbackTests = this.generateHeuristicTestCases(analysis, options);
     return {
       testCases: fallbackTests,
       source: "Deterministic Heuristic Engine (Ollama Offline)"
@@ -228,7 +243,11 @@ export class OllamaProvider implements AIProvider {
   /**
    * Performs an HTTP request to Ollama with AbortController timeout.
    */
-  private async callOllamaApi(prompt: string, timeoutMs: number): Promise<string> {
+  private async callOllamaApi(
+    prompt: string,
+    timeoutMs: number,
+    customOptions?: Record<string, any>
+  ): Promise<string> {
     await this.resolveModelName();
 
     const controller = new AbortController();
@@ -247,7 +266,8 @@ export class OllamaProvider implements AIProvider {
           options: {
             temperature: 0.1,
             num_ctx: 4096,
-            num_predict: 1024
+            num_predict: 1024,
+            ...customOptions
           }
         })
       });
@@ -306,8 +326,14 @@ export class OllamaProvider implements AIProvider {
 
   /**
    * Deterministic test case synthesizer using crawled application analysis.
+   * Generates up to targetCount tests and prioritizes user context if provided.
    */
-  private generateHeuristicTestCases(analysis: StructuredAnalysis): TestCaseDefinition[] {
+  private generateHeuristicTestCases(
+    analysis: StructuredAnalysis,
+    options?: TestGenerationOptions
+  ): TestCaseDefinition[] {
+    const targetCount = options?.count ? Math.min(15, Math.max(1, options.count)) : 5;
+    const userContext = options?.context?.toLowerCase().trim() || "";
     const testCases: TestCaseDefinition[] = [];
 
     // Test 1: Critical Landing and URL Verification
@@ -325,9 +351,9 @@ export class OllamaProvider implements AIProvider {
       expectedResult: `Application loads successfully and displays the primary heading "${analysis.headings?.[0]?.text || analysis.title}".`
     });
 
-    // Test 2: Interactive Form Input Test (if forms or inputs exist)
+    // Test 2: Interactive Form Input Test (valid inputs)
     if (analysis.inputs && analysis.inputs.length > 0) {
-      const inputSteps = analysis.inputs.slice(0, 3).map((inp) => {
+      const inputSteps = analysis.inputs.slice(0, 4).map((inp) => {
         let sampleVal = "test-input";
         if (inp.type === "email" || inp.name?.toLowerCase().includes("email")) {
           sampleVal = "test@example.com";
@@ -370,39 +396,101 @@ export class OllamaProvider implements AIProvider {
         steps,
         expectedResult: "Form fields accept user input and submit action executes without UI error."
       });
+
+      // Test 3: Form Negative Test - Empty Required Input Submission
+      const requiredInput = analysis.inputs.find((i) => i.required);
+      if (requiredInput && submitBtn) {
+        testCases.push({
+          title: "Form Validation: Required Field Enforcement",
+          description: "Verify that submitting the form without filling required inputs is prevented or prompts validation error.",
+          steps: [
+            { action: "navigate", target: analysis.url },
+            { action: "click", target: submitBtn.text || submitBtn.ariaLabel || "button" },
+            { action: "assertURL", target: analysis.url }
+          ],
+          expectedResult: "Form submission is halted and user remains on current page or sees validation prompt."
+        });
+      }
     }
 
-    // Test 3: Primary Navigation / Discovered Routes
+    // Test 4-6: Multiple Discovered Routes Navigation
     if (analysis.discoveredRoutes && analysis.discoveredRoutes.length > 0) {
-      const route = analysis.discoveredRoutes[0];
-      testCases.push({
-        title: `Internal Route Navigation: ${route}`,
-        description: `Verify that navigating to the internal route ${route} loads the designated page view.`,
-        steps: [
-          { action: "navigate", target: analysis.url },
-          { action: "click", target: route },
-          { action: "assertURL", target: route }
-        ],
-        expectedResult: `User is successfully routed to ${route} and the page contents are rendered.`
-      });
+      const routesToTest = analysis.discoveredRoutes.slice(0, 4);
+      for (const route of routesToTest) {
+        testCases.push({
+          title: `Internal Route Navigation: ${route}`,
+          description: `Verify that navigating to the internal route ${route} loads the designated page view.`,
+          steps: [
+            { action: "navigate", target: analysis.url },
+            { action: "click", target: route },
+            { action: "assertURL", target: route }
+          ],
+          expectedResult: `User is successfully routed to ${route} and the page contents are rendered.`
+        });
+      }
     }
 
-    // Test 4: Interactive Button Action
+    // Test 7-10: Multiple Interactive Button Actions
     if (analysis.buttons && analysis.buttons.length > 0) {
-      const button = analysis.buttons[0];
+      const distinctButtons = analysis.buttons
+        .filter((b) => b.text && b.text.trim().length > 1)
+        .slice(0, 5);
+
+      for (const button of distinctButtons) {
+        const btnText = button.text.trim();
+        // Avoid duplicate title
+        if (testCases.some((tc) => tc.title.includes(`"${btnText}"`))) continue;
+
+        testCases.push({
+          title: `Action Button Trigger: "${btnText}"`,
+          description: `Verify clicking the "${btnText}" button triggers expected UI interaction without throwing exceptions.`,
+          steps: [
+            { action: "navigate", target: analysis.url },
+            { action: "assertVisible", target: btnText },
+            { action: "click", target: btnText }
+          ],
+          expectedResult: `Button "${btnText}" responds to click event and application state remains stable.`
+        });
+      }
+    }
+
+    // Test: Heading & Content Verification
+    if (analysis.headings && analysis.headings.length > 1) {
+      const secondaryHeading = analysis.headings[1].text.trim();
       testCases.push({
-        title: `Action Button Trigger: "${button.text.trim() || "Action"}"`,
-        description: `Verify clicking the "${button.text.trim() || "Action"}" button triggers expected UI interaction without throwing exceptions.`,
+        title: `Content Hierarchy: "${secondaryHeading.slice(0, 40)}"`,
+        description: `Verify that secondary content section "${secondaryHeading}" is visible on the page.`,
         steps: [
           { action: "navigate", target: analysis.url },
-          { action: "assertVisible", target: button.text || "button" },
-          { action: "click", target: button.text || "button" }
+          { action: "assertVisible", target: secondaryHeading }
         ],
-        expectedResult: "Button responds to click event and application state remains stable."
+        expectedResult: `Page renders secondary section heading "${secondaryHeading}".`
       });
     }
 
-    return testCases;
+    // Prioritize test cases matching user context keywords
+    if (userContext) {
+      const keywords = userContext.split(/\s+/).filter((k) => k.length > 2);
+      testCases.sort((a, b) => {
+        const aMatch = keywords.some(
+          (k) =>
+            a.title.toLowerCase().includes(k) ||
+            a.description?.toLowerCase().includes(k) ||
+            a.steps.some((s) => s.target.toLowerCase().includes(k))
+        );
+        const bMatch = keywords.some(
+          (k) =>
+            b.title.toLowerCase().includes(k) ||
+            b.description?.toLowerCase().includes(k) ||
+            b.steps.some((s) => s.target.toLowerCase().includes(k))
+        );
+        if (aMatch && !bMatch) return -1;
+        if (!aMatch && bMatch) return 1;
+        return 0;
+      });
+    }
+
+    return testCases.slice(0, targetCount);
   }
 
   /**

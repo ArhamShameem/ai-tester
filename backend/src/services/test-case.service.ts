@@ -2,7 +2,7 @@ import prisma from "../lib/prisma";
 import { AppError } from "../utils/AppError";
 import { AIService } from "./ai/ai.service";
 import { StructuredAnalysis } from "../types/analysis.types";
-import { TestCaseDefinition } from "../types/test-case.types";
+import { TestCaseDefinition, TestGenerationOptions } from "../types/test-case.types";
 import { Prisma } from "@prisma/client";
 
 export class TestCaseService {
@@ -12,7 +12,8 @@ export class TestCaseService {
    */
   static async generateTestCasesForProject(
     userId: string,
-    projectId: string
+    projectId: string,
+    options?: TestGenerationOptions
   ) {
     // 1. Verify project ownership
     const project = await prisma.project.findFirst({
@@ -38,16 +39,23 @@ export class TestCaseService {
 
     const structuredAnalysis = latestAnalysis.data as unknown as StructuredAnalysis;
 
-    // 3. Call AI provider
+    // 3. Optional: replace existing test suite
+    if (options?.replaceExisting) {
+      await prisma.testCase.deleteMany({
+        where: { projectId }
+      });
+    }
+
+    // 4. Call AI provider with options
     const aiProvider = AIService.getProvider();
     const { testCases: candidateCases, source } =
-      await aiProvider.generateTestCases(structuredAnalysis);
+      await aiProvider.generateTestCases(structuredAnalysis, options);
 
     if (!candidateCases || candidateCases.length === 0) {
       throw new AppError("AI provider did not produce any valid test cases.", 500);
     }
 
-    // 4. Retrieve existing test case titles for deduplication
+    // 5. Retrieve existing test case titles for deduplication
     const existingCases = await prisma.testCase.findMany({
       where: { projectId },
       select: { title: true }
@@ -174,5 +182,27 @@ export class TestCaseService {
     });
 
     return true;
+  }
+
+  /**
+   * Deletes all test cases for a user-owned project.
+   */
+  static async clearAllTestCasesForProject(userId: string, projectId: string) {
+    const project = await prisma.project.findFirst({
+      where: { id: projectId, userId }
+    });
+
+    if (!project) {
+      throw new AppError("Project not found", 404);
+    }
+
+    const { count } = await prisma.testCase.deleteMany({
+      where: { projectId }
+    });
+
+    return {
+      message: `Successfully cleared ${count} test cases`,
+      deletedCount: count
+    };
   }
 }

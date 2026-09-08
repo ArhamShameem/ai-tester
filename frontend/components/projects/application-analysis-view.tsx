@@ -39,13 +39,14 @@ export function ApplicationAnalysisView({
                 href={analysis.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-xs font-mono text-teal-400 hover:underline flex items-center gap-1 truncate"
+                className="text-xs font-mono text-teal-400 hover:underline inline-flex items-center gap-1 max-w-xs sm:max-w-md md:max-w-xl truncate min-w-0"
+                title={analysis.url}
               >
-                {analysis.url}
+                <span className="truncate">{analysis.url}</span>
                 <svg
                   width={12}
                   height={12}
-                  className="w-3 h-3"
+                  className="w-3 h-3 shrink-0"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -66,7 +67,7 @@ export function ApplicationAnalysisView({
             </div>
           </div>
           {analysis.description && (
-            <CardDescription className="text-xs text-slate-400 mt-2">
+            <CardDescription className="text-xs text-slate-400 mt-2 break-words [overflow-wrap:anywhere]">
               {analysis.description}
             </CardDescription>
           )}
@@ -128,7 +129,8 @@ export function ApplicationAnalysisView({
               {analysis.discoveredRoutes.map((route, i) => (
                 <span
                   key={i}
-                  className="px-2.5 py-1 rounded bg-slate-950/80 border border-slate-800 text-teal-300 font-mono text-xs"
+                  className="px-2.5 py-1 rounded bg-slate-950/80 border border-slate-800 text-teal-300 font-mono text-xs break-all max-w-full"
+                  title={route}
                 >
                   {route}
                 </span>
@@ -251,7 +253,7 @@ export function ApplicationAnalysisView({
                     </Badge>
                   </div>
                   {form.action && (
-                    <div className="text-slate-400 font-mono text-2xs truncate">
+                    <div className="text-slate-400 font-mono text-2xs break-all" title={form.action}>
                       action: {form.action}
                     </div>
                   )}
@@ -304,7 +306,7 @@ export function ApplicationAnalysisView({
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-xs text-slate-400 leading-relaxed font-sans bg-slate-950/60 p-3.5 rounded-lg border border-slate-800/80 line-clamp-4 hover:line-clamp-none transition-all">
+            <p className="text-xs text-slate-400 leading-relaxed font-sans bg-slate-950/60 p-3.5 rounded-lg border border-slate-800/80 line-clamp-4 hover:line-clamp-none transition-all break-words [overflow-wrap:anywhere]">
               {analysis.visibleTextSummary}
             </p>
           </CardContent>

@@ -1,7 +1,5 @@
-"use client";
-
 import React, { useState } from "react";
-import { TestCase, TestStep, TestActionType } from "../../types/test-case";
+import { TestCase, TestStep, TestActionType, GenerateTestCasesOptions } from "../../types/test-case";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import { Card, CardHeader, CardTitle, CardContent } from "../ui/card";
@@ -14,8 +12,10 @@ interface TestCaseListProps {
   isLoading: boolean;
   isGenerating: boolean;
   hasAnalysis: boolean;
-  onGenerate: () => Promise<void>;
+  onGenerate: (options?: GenerateTestCasesOptions) => Promise<void>;
+  onOpenGenerateModal?: () => void;
   onDelete: (testCaseId: string) => Promise<void>;
+  onClearSuite?: () => Promise<void>;
   onRunAll: () => Promise<void>;
   isRunningTests: boolean;
 }
@@ -50,12 +50,16 @@ export function TestCaseList({
   isGenerating,
   hasAnalysis,
   onGenerate,
+  onOpenGenerateModal,
   onDelete,
+  onClearSuite,
   onRunAll,
   isRunningTests
 }: TestCaseListProps) {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [caseToDelete, setCaseToDelete] = useState<TestCase | null>(null);
+  const [isClearModalOpen, setIsClearModalOpen] = useState(false);
+  const [isClearing, setIsClearing] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const confirmDelete = async () => {
@@ -69,6 +73,20 @@ export function TestCaseList({
       setErrorMsg(err instanceof Error ? err.message : "Failed to delete test case");
     } finally {
       setDeletingId(null);
+    }
+  };
+
+  const confirmClearSuite = async () => {
+    if (!onClearSuite) return;
+    setIsClearing(true);
+    setErrorMsg(null);
+    try {
+      await onClearSuite();
+      setIsClearModalOpen(false);
+    } catch (err) {
+      setErrorMsg(err instanceof Error ? err.message : "Failed to clear test suite");
+    } finally {
+      setIsClearing(false);
     }
   };
 
@@ -86,11 +104,23 @@ export function TestCaseList({
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5">
+          {testCases.length > 0 && onClearSuite && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsClearModalOpen(true)}
+              disabled={isGenerating || isRunningTests || isClearing}
+              className="text-slate-400 hover:text-rose-400 text-xs"
+            >
+              Clear Suite
+            </Button>
+          )}
+
           <Button
             variant="outline"
             size="sm"
-            onClick={onGenerate}
+            onClick={onOpenGenerateModal || (() => onGenerate())}
             isLoading={isGenerating}
             disabled={isGenerating || isRunningTests}
             title={!hasAnalysis ? "Application must be analyzed first" : undefined}
@@ -110,7 +140,11 @@ export function TestCaseList({
                 d="M13 10V3L4 14h7v7l9-11h-7z"
               />
             </svg>
-            {isGenerating ? "Synthesizing Tests..." : "Generate Test Cases"}
+            {isGenerating
+              ? "Synthesizing Tests..."
+              : testCases.length > 0
+              ? "Generate Tests..."
+              : "Generate Test Cases"}
           </Button>
 
           <Button
@@ -213,7 +247,12 @@ export function TestCaseList({
             </div>
             {hasAnalysis && (
               <div className="pt-2">
-                <Button variant="primary" size="sm" onClick={onGenerate}>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  onClick={onOpenGenerateModal || (() => onGenerate())}
+                  isLoading={isGenerating}
+                >
                   Generate Test Cases Now
                 </Button>
               </div>
@@ -235,17 +274,17 @@ export function TestCaseList({
               >
                 <CardHeader className="pb-3 pt-4 px-5">
                   <div className="flex items-start justify-between gap-4">
-                    <div className="space-y-1 min-w-0">
+                    <div className="space-y-1 min-w-0 flex-1">
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-mono font-bold text-slate-500">
+                        <span className="text-xs font-mono font-bold text-slate-500 shrink-0">
                           #{index + 1}
                         </span>
-                        <CardTitle className="text-base text-slate-100 truncate">
+                        <CardTitle className="text-base text-slate-100 break-words [overflow-wrap:anywhere]">
                           {tc.title}
                         </CardTitle>
                       </div>
                       {tc.description && (
-                        <p className="text-xs text-slate-400 leading-relaxed">
+                        <p className="text-xs text-slate-400 leading-relaxed break-words [overflow-wrap:anywhere]">
                           {tc.description}
                         </p>
                       )}
@@ -287,22 +326,28 @@ export function TestCaseList({
                       {steps.map((step, stepIdx) => (
                         <div
                           key={stepIdx}
-                          className="flex items-center gap-2 text-xs font-mono text-slate-300"
+                          className="flex flex-wrap sm:flex-nowrap items-center gap-2 text-xs font-mono text-slate-300 min-w-0"
                         >
-                          <span className="text-slate-500 text-2xs w-4">
+                          <span className="text-slate-500 text-2xs w-4 shrink-0">
                             {stepIdx + 1}.
                           </span>
                           <Badge
                             variant={getActionBadgeVariant(step.action)}
-                            className="text-2xs px-1.5 py-0 uppercase"
+                            className="text-2xs px-1.5 py-0 uppercase shrink-0"
                           >
                             {step.action}
                           </Badge>
-                          <span className="text-teal-300 truncate max-w-xs sm:max-w-md">
+                          <span
+                            className="text-teal-300 truncate max-w-xs sm:max-w-md min-w-0"
+                            title={step.target}
+                          >
                             &quot;{step.target}&quot;
                           </span>
                           {step.value && (
-                            <span className="text-slate-400 truncate">
+                            <span
+                              className="text-slate-400 truncate max-w-xs min-w-0"
+                              title={step.value}
+                            >
                               → &quot;{step.value}&quot;
                             </span>
                           )}
@@ -316,7 +361,7 @@ export function TestCaseList({
                     <span className="font-semibold text-slate-400 shrink-0">
                       Expected:
                     </span>
-                    <span className="text-slate-300 italic">
+                    <span className="text-slate-300 italic break-words [overflow-wrap:anywhere]">
                       {tc.expectedResult}
                     </span>
                   </div>
@@ -358,6 +403,40 @@ export function TestCaseList({
           Are you sure you want to permanently delete{" "}
           <strong className="text-white">&quot;{caseToDelete?.title}&quot;</strong>?
           This will also remove any associated historical results.
+        </p>
+      </Modal>
+
+      {/* Clear Suite Modal */}
+      <Modal
+        isOpen={isClearModalOpen}
+        onClose={() => setIsClearModalOpen(false)}
+        title="Clear Entire Test Suite"
+        maxWidth="sm"
+        footer={
+          <div className="flex justify-end gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsClearModalOpen(false)}
+              disabled={isClearing}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="danger"
+              size="sm"
+              onClick={confirmClearSuite}
+              isLoading={isClearing}
+            >
+              Clear All Tests
+            </Button>
+          </div>
+        }
+      >
+        <p className="text-sm text-slate-300">
+          Are you sure you want to delete all{" "}
+          <strong className="text-white">{testCases.length} test cases</strong> in this project?
+          This will reset your functional test suite and cannot be undone.
         </p>
       </Modal>
     </div>

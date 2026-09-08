@@ -18,6 +18,7 @@ import {
 } from "../types/analysis";
 import {
   GenerateTestCasesResponse,
+  GenerateTestCasesOptions,
   TestCasesResponse,
   TestCaseResponse
 } from "../types/test-case";
@@ -207,10 +208,21 @@ export const analysisApi = {
  */
 export const testCaseApi = {
   async generateTestCases(
-    projectId: string
+    projectId: string,
+    options?: GenerateTestCasesOptions
   ): Promise<GenerateTestCasesResponse> {
+    const cleanOptions =
+      options && typeof options === "object" && !("nativeEvent" in options) && !("target" in options)
+        ? {
+            context: typeof options.context === "string" ? options.context : undefined,
+            count: typeof options.count === "number" ? options.count : undefined,
+            replaceExisting: Boolean(options.replaceExisting)
+          }
+        : undefined;
+
     return api.post<GenerateTestCasesResponse>(
-      `/projects/${projectId}/test-cases/generate`
+      `/projects/${projectId}/test-cases/generate`,
+      cleanOptions
     );
   },
 
@@ -224,6 +236,14 @@ export const testCaseApi = {
 
   async deleteTestCase(testCaseId: string): Promise<{ message: string }> {
     return api.delete<{ message: string }>(`/test-cases/${testCaseId}`);
+  },
+
+  async clearTestCases(
+    projectId: string
+  ): Promise<{ message: string; deletedCount: number }> {
+    return api.delete<{ message: string; deletedCount: number }>(
+      `/projects/${projectId}/test-cases`
+    );
   }
 };
 

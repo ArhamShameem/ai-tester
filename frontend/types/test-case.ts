@@ -25,6 +25,12 @@ export interface TestCase {
   createdAt: string;
 }
 
+export interface GenerateTestCasesOptions {
+  context?: string;
+  count?: number;
+  replaceExisting?: boolean;
+}
+
 export interface GenerateTestCasesResponse {
   message: string;
   source?: string;
