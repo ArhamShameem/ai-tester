@@ -77,11 +77,11 @@ export function GenerateTestModal({
       <form onSubmit={handleSubmit} className="space-y-5">
         {/* Testing Focus / Context */}
         <div>
-          <label className="block text-sm font-semibold text-slate-200 mb-1.5">
+          <label className="block text-sm font-semibold text-slate-800 mb-1.5">
             Testing Context & Focus Area{" "}
-            <span className="text-xs font-normal text-slate-400">(Optional)</span>
+            <span className="text-xs font-normal text-slate-500">(Optional)</span>
           </label>
-          <p className="text-xs text-slate-400 mb-2">
+          <p className="text-xs text-slate-500 mb-2">
             Describe what features, user flows, or scenarios the AI should specifically prioritize:
           </p>
           <textarea
@@ -89,20 +89,20 @@ export function GenerateTestModal({
             onChange={(e) => setContext(e.target.value)}
             disabled={isGenerating}
             rows={3}
-            className="w-full bg-slate-950 border border-slate-700/80 rounded-lg px-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all resize-y"
+            className="w-full bg-white border border-[#dce3da] rounded-xl px-3.5 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2e633f]/20 focus:border-[#2e633f] transition-all resize-y shadow-2xs"
             placeholder="e.g., Focus on the lead capture form. Verify email validation, test empty required fields, and confirm clicking 'Request Demo' works."
           />
 
           {/* Preset Chips */}
-          <div className="mt-2 flex flex-wrap items-center gap-1.5">
-            <span className="text-xs text-slate-400 mr-1">Quick Suggestions:</span>
+          <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
+            <span className="text-xs text-slate-500 mr-1">Quick Suggestions:</span>
             {CONTEXT_PRESETS.map((preset) => (
               <button
                 key={preset.label}
                 type="button"
                 onClick={() => handleApplyPreset(preset.text)}
                 disabled={isGenerating}
-                className="text-xs px-2.5 py-1 rounded-md bg-slate-800/80 hover:bg-slate-700/80 text-teal-300 border border-slate-700/60 hover:border-teal-500/40 transition-colors"
+                className="text-xs px-2.5 py-1 rounded-lg bg-[#f1f5ef] hover:bg-[#e4ece2] text-[#234e32] border border-[#dce3da] transition-colors cursor-pointer font-medium"
               >
                 + {preset.label}
               </button>
@@ -113,10 +113,10 @@ export function GenerateTestModal({
         {/* Number of Test Cases */}
         <div>
           <div className="flex items-center justify-between mb-1.5">
-            <label className="block text-sm font-semibold text-slate-200">
+            <label className="block text-sm font-semibold text-slate-800">
               Number of Test Cases
             </label>
-            <span className="text-xs font-semibold text-teal-400">
+            <span className="text-xs font-semibold text-[#2e633f]">
               {count} {count === 1 ? "Test Case" : "Test Cases"}
             </span>
           </div>
@@ -128,10 +128,10 @@ export function GenerateTestModal({
                 type="button"
                 onClick={() => setCount(presetNum)}
                 disabled={isGenerating}
-                className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-semibold border transition-all ${
+                className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-semibold border transition-all cursor-pointer ${
                   count === presetNum
-                    ? "bg-teal-500/20 text-teal-300 border-teal-500/60 shadow-sm shadow-teal-500/10"
-                    : "bg-slate-900/80 text-slate-300 border-slate-800 hover:bg-slate-800 hover:border-slate-700"
+                    ? "bg-[#e2ece0] text-[#234e32] border-[#2e633f] shadow-xs"
+                    : "bg-white text-slate-700 border-[#dce3da] hover:bg-[#f8faf7] hover:border-[#b8c7b4]"
                 }`}
               >
                 {presetNum} Tests
@@ -139,7 +139,7 @@ export function GenerateTestModal({
             ))}
 
             <div className="flex items-center gap-1.5 ml-2">
-              <span className="text-xs text-slate-400">Custom:</span>
+              <span className="text-xs text-slate-500">Custom:</span>
               <input
                 type="number"
                 min={1}
@@ -150,11 +150,11 @@ export function GenerateTestModal({
                   if (!isNaN(val)) setCount(Math.min(15, Math.max(1, val)));
                 }}
                 disabled={isGenerating}
-                className="w-16 bg-slate-950 border border-slate-700 rounded-lg px-2 py-1 text-xs text-slate-100 text-center focus:outline-none focus:ring-1 focus:ring-teal-500"
+                className="w-16 bg-white border border-[#dce3da] rounded-lg px-2 py-1 text-xs text-slate-800 text-center focus:outline-none focus:ring-1 focus:ring-[#2e633f] focus:border-[#2e633f]"
               />
             </div>
           </div>
-          <p className="text-xs text-slate-400 mt-1.5">
+          <p className="text-xs text-slate-500 mt-1.5">
             {count <= 4
               ? "Fastest generation time (ideal for quick surface checks)."
               : count <= 8
@@ -165,20 +165,20 @@ export function GenerateTestModal({
 
         {/* Replace Existing Option */}
         {existingCount > 0 && (
-          <div className="bg-slate-900/60 p-3 rounded-lg border border-slate-800/80">
+          <div className="bg-[#f8faf7] p-3.5 rounded-xl border border-[#e2e8e0]">
             <label className="flex items-start gap-2.5 cursor-pointer">
               <input
                 type="checkbox"
                 checked={replaceExisting}
                 onChange={(e) => setReplaceExisting(e.target.checked)}
                 disabled={isGenerating}
-                className="mt-0.5 rounded border-slate-700 bg-slate-950 text-teal-500 focus:ring-teal-500/30"
+                className="mt-0.5 rounded border-[#dce3da] text-[#2e633f] focus:ring-[#2e633f]/30"
               />
               <div>
-                <span className="text-xs font-medium text-slate-200">
+                <span className="text-xs font-medium text-slate-800">
                   Replace {existingCount} existing test cases
                 </span>
-                <p className="text-xs text-slate-400 mt-0.5">
+                <p className="text-xs text-slate-500 mt-0.5">
                   When checked, current test cases will be cleared and replaced with the newly generated suite.
                   Otherwise, new tests will be appended.
                 </p>
@@ -188,13 +188,14 @@ export function GenerateTestModal({
         )}
 
         {/* Modal Actions */}
-        <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-800">
+        <div className="flex items-center justify-end gap-3 pt-3 border-t border-[#e5ebe3]">
           <Button
             type="button"
             variant="ghost"
             size="sm"
             onClick={onClose}
             disabled={isGenerating}
+            className="text-slate-600 hover:text-slate-900"
           >
             Cancel
           </Button>
@@ -205,7 +206,7 @@ export function GenerateTestModal({
             size="sm"
             isLoading={isGenerating}
             disabled={isGenerating}
-            className="shadow-sm shadow-teal-900/40"
+            className="bg-[#2e633f] hover:bg-[#234e32] text-white shadow-sm font-medium"
           >
             <svg
               width={14}

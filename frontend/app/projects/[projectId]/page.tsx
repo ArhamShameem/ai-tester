@@ -21,12 +21,14 @@ import { Input } from "../../../components/ui/input";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "../../../components/ui/card";
 import { Badge } from "../../../components/ui/badge";
 import { Alert } from "../../../components/ui/alert";
+import { AnimatedGrid } from "../../../components/ui/animated-grid";
 import { DeleteProjectDialog } from "../../../components/projects/delete-project-dialog";
 import { ApplicationAnalysisView } from "../../../components/projects/application-analysis-view";
 import { TestCaseList } from "../../../components/projects/test-case-list";
 import { TestRunList } from "../../../components/projects/test-run-list";
 import { TestRunDetail } from "../../../components/projects/test-run-detail";
 import { GenerateTestModal } from "../../../components/projects/generate-test-modal";
+import { ExternalLink, Sparkles, Play, RefreshCw, Compass } from "lucide-react";
 
 function ProjectDetailsContent() {
   const params = useParams();
@@ -285,11 +287,57 @@ function ProjectDetailsContent() {
 
   if (isLoading) {
     return (
-      <div className="min-h-[calc(100vh-4rem)] bg-slate-950 p-4 sm:p-6 lg:p-8">
-        <div className="max-w-7xl mx-auto space-y-6">
-          <div className="h-6 w-32 bg-slate-800 rounded animate-pulse" />
-          <div className="h-10 w-2/3 bg-slate-800 rounded animate-pulse" />
-          <div className="h-48 bg-slate-900/60 border border-slate-800 rounded-xl animate-pulse" />
+      <div className="relative min-h-[calc(100vh-6.5rem)] bg-[#f8faf7] p-4 sm:p-6 lg:p-8 overflow-hidden">
+        <AnimatedGrid />
+        <div className="relative z-10 max-w-7xl mx-auto space-y-6">
+          {/* Breadcrumb skeleton */}
+          <div className="h-4 w-32 bg-[#e2ece0] rounded-md animate-pulse" />
+
+          {/* Header Row Skeleton */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#e5ebe3]">
+            <div className="space-y-2 flex-1">
+              <div className="flex items-center gap-3">
+                <div className="h-8 w-64 bg-[#e2ece0] rounded-lg animate-pulse" />
+                <div className="h-5 w-16 bg-[#e2ece0] rounded-full animate-pulse" />
+              </div>
+              <div className="h-4 w-96 max-w-full bg-[#eef3ec] rounded-md animate-pulse" />
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="h-9 w-36 bg-[#e2ece0] rounded-xl animate-pulse" />
+              <div className="h-9 w-40 bg-[#2e633f]/20 rounded-xl animate-pulse" />
+            </div>
+          </div>
+
+          {/* Tab Navigation Skeleton */}
+          <div className="h-11 border-b border-[#dce3da] flex gap-4 px-2 items-center">
+            <div className="h-6 w-36 bg-[#e2ece0] rounded-md animate-pulse" />
+            <div className="h-6 w-24 bg-[#eef3ec] rounded-md animate-pulse" />
+            <div className="h-6 w-24 bg-[#eef3ec] rounded-md animate-pulse" />
+            <div className="h-6 w-20 bg-[#eef3ec] rounded-md animate-pulse" />
+          </div>
+
+          {/* Card Content Skeleton */}
+          <div className="bg-white border border-[#dce3da] rounded-2xl p-6 shadow-xs space-y-6">
+            <div className="flex items-center justify-between">
+              <div className="space-y-1.5">
+                <div className="h-5 w-48 bg-[#e2ece0] rounded-md animate-pulse" />
+                <div className="h-4 w-72 bg-[#eef3ec] rounded-md animate-pulse" />
+              </div>
+              <div className="h-8 w-28 bg-[#e2ece0] rounded-lg animate-pulse" />
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="h-20 bg-[#f8faf7] border border-[#e2e8e0] rounded-xl p-3 space-y-2 animate-pulse">
+                  <div className="h-3 w-16 bg-[#e2ece0] rounded" />
+                  <div className="h-6 w-12 bg-[#dce3da] rounded" />
+                </div>
+              ))}
+            </div>
+            <div className="space-y-3 pt-2">
+              <div className="h-14 bg-[#f8faf7] border border-[#e2e8e0] rounded-xl animate-pulse" />
+              <div className="h-14 bg-[#f8faf7] border border-[#e2e8e0] rounded-xl animate-pulse" />
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -297,13 +345,14 @@ function ProjectDetailsContent() {
 
   if (error || !project) {
     return (
-      <div className="min-h-[calc(100vh-4rem)] bg-slate-950 p-4 sm:p-6 lg:p-8">
-        <div className="max-w-3xl mx-auto space-y-6 pt-12">
+      <div className="relative min-h-[calc(100vh-6.5rem)] bg-[#f8faf7] p-4 sm:p-6 lg:p-8 overflow-hidden">
+        <AnimatedGrid />
+        <div className="relative z-10 max-w-3xl mx-auto space-y-6 pt-12">
           <Alert variant="error" title="Unable to Open Project">
             {error || "Project could not be found."}
           </Alert>
           <Link href="/dashboard">
-            <Button variant="secondary" size="md">
+            <Button variant="outline" size="md" className="border-[#dce3da] bg-white text-slate-700 hover:text-slate-900">
               ← Return to Dashboard
             </Button>
           </Link>
@@ -409,52 +458,40 @@ function ProjectDetailsContent() {
   ];
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] bg-slate-950 p-4 sm:p-6 lg:p-8">
-      <div className="max-w-7xl mx-auto space-y-6">
+    <div className="relative min-h-[calc(100vh-6.5rem)] bg-[#f8faf7] text-slate-900 p-4 sm:p-6 lg:p-8 overflow-hidden">
+      <AnimatedGrid />
+
+      <div className="relative z-10 max-w-7xl mx-auto space-y-6">
         {/* Navigation Breadcrumb */}
         <div>
           <Link
             href="/dashboard"
-            className="inline-flex items-center gap-1 text-xs text-slate-400 hover:text-teal-300 transition-colors font-medium mb-3"
+            className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-[#2e633f] transition-colors font-medium mb-3 group"
           >
-            ← Back to Projects
+            <span className="group-hover:-translate-x-0.5 transition-transform">←</span> Back to Projects
           </Link>
 
           {/* Project Header Title & URL */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#e5ebe3]">
             <div className="space-y-1 min-w-0 flex-1">
               <div className="flex items-center gap-3 min-w-0">
-                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white truncate max-w-xl" title={project.name}>
+                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 truncate max-w-xl" title={project.name}>
                   {project.name}
                 </h1>
-                <Badge variant="teal" className="shrink-0">Active</Badge>
+                <Badge variant="emerald" className="shrink-0 font-medium">Active</Badge>
               </div>
 
-              <div className="flex flex-wrap items-center gap-2 text-xs text-slate-400 min-w-0 max-w-full">
-                <span className="shrink-0">Target:</span>
+              <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500 min-w-0 max-w-full">
+                <span className="shrink-0 font-medium">Target:</span>
                 <a
                   href={project.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="font-mono text-teal-400 hover:underline inline-flex items-center gap-1 min-w-0 max-w-xs sm:max-w-md md:max-w-xl truncate"
+                  className="font-mono text-[#2e633f] hover:underline bg-[#f1f5ef] px-2.5 py-0.5 rounded-md border border-[#dce3da] inline-flex items-center gap-1.5 min-w-0 max-w-xs sm:max-w-md md:max-w-xl truncate"
                   title={project.url}
                 >
                   <span className="truncate">{project.url}</span>
-                  <svg
-                    width={12}
-                    height={12}
-                    className="w-3 h-3 shrink-0"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                    />
-                  </svg>
+                  <ExternalLink className="w-3 h-3 shrink-0" />
                 </a>
                 <span className="shrink-0">•</span>
                 <span className="shrink-0">
@@ -470,27 +507,17 @@ function ProjectDetailsContent() {
                 onClick={handleAnalyze}
                 isLoading={isAnalyzing}
                 disabled={isAnalyzing || isGeneratingTestCases}
-                className={!analysis ? "shadow-md shadow-teal-900/30" : undefined}
+                className={
+                  analysis
+                    ? "border-[#dce3da] bg-white text-slate-700 hover:text-slate-900 hover:border-[#b8c7b4] shadow-2xs"
+                    : "bg-[#2e633f] hover:bg-[#234e32] text-white shadow-sm font-medium"
+                }
               >
                 {isAnalyzing ? (
                   "Crawling Target App..."
                 ) : (
                   <>
-                    <svg
-                      width={16}
-                      height={16}
-                      className="w-4 h-4 mr-1.5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                      />
-                    </svg>
+                    <Compass className="w-4 h-4 mr-1.5" />
                     {analysis ? "Re-Analyze Application" : "Analyze Application"}
                   </>
                 )}
@@ -503,27 +530,13 @@ function ProjectDetailsContent() {
                   onClick={() => setIsGenerateModalOpen(true)}
                   isLoading={isGeneratingTestCases}
                   disabled={isGeneratingTestCases || isAnalyzing}
-                  className="shadow-md shadow-teal-900/40"
+                  className="bg-[#2e633f] hover:bg-[#234e32] text-white shadow-sm font-medium"
                 >
                   {isGeneratingTestCases ? (
                     "Synthesizing Tests..."
                   ) : (
                     <>
-                      <svg
-                        width={16}
-                        height={16}
-                        className="w-4 h-4 mr-1.5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M13 10V3L4 14h7v7l9-11h-7z"
-                        />
-                      </svg>
+                      <Sparkles className="w-4 h-4 mr-1.5" />
                       Generate Test Cases
                     </>
                   )}
@@ -551,6 +564,7 @@ function ProjectDetailsContent() {
                       size="sm"
                       onClick={handleAnalyze}
                       disabled={isAnalyzing}
+                      className="border-rose-300 text-rose-800 hover:bg-rose-50"
                     >
                       Retry Analysis
                     </Button>
@@ -560,14 +574,14 @@ function ProjectDetailsContent() {
 
               {/* In-Flight Crawling State */}
               {isAnalyzing && (
-                <Card className="border-teal-800/80 bg-teal-950/20 p-8 text-center space-y-4">
-                  <div className="w-12 h-12 mx-auto rounded-full border-2 border-teal-500/30 border-t-teal-400 animate-spin" />
+                <Card className="border-[#c8dac3] bg-white p-8 text-center space-y-4 shadow-xs">
+                  <div className="w-12 h-12 mx-auto rounded-full border-3 border-[#2e633f]/20 border-t-[#2e633f] animate-spin" />
                   <div className="max-w-md mx-auto space-y-1">
-                    <h3 className="text-base font-bold text-teal-200">
+                    <h3 className="text-base font-bold text-slate-900">
                       Playwright Inspection In Progress
                     </h3>
-                    <p className="text-xs text-slate-400 leading-relaxed break-words">
-                      Launching headless Chromium session, resolving <code className="text-teal-300 font-mono break-all">{project.url}</code>, discovering interactive forms, inputs, buttons, and indexing routes. This typically takes 5–15 seconds.
+                    <p className="text-xs text-slate-600 leading-relaxed break-words">
+                      Launching headless Chromium session, resolving <code className="text-[#2e633f] font-mono break-all bg-[#f1f5ef] px-1.5 py-0.5 rounded border border-[#dce3da]">{project.url}</code>, discovering interactive forms, inputs, buttons, and indexing routes. This typically takes 5–15 seconds.
                     </p>
                   </div>
                 </Card>
@@ -577,18 +591,18 @@ function ProjectDetailsContent() {
               {analysis && !isAnalyzing && (
                 <div className="space-y-6">
                   {/* Actionable Next Step Callout */}
-                  <div className="bg-gradient-to-r from-teal-950/70 via-slate-900 to-slate-900 border border-teal-800/80 rounded-xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-lg shadow-teal-950/20">
+                  <div className="bg-[#f2f7f0] border border-[#cbe0c7] rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">
                     <div className="space-y-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-teal-500/20 text-teal-300 text-xs font-bold">
+                        <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-[#2e633f] text-white text-xs font-bold">
                           ✓
                         </span>
-                        <h3 className="text-sm sm:text-base font-bold text-white truncate">
+                        <h3 className="text-sm sm:text-base font-bold text-slate-900 truncate">
                           Application Telemetry Discovered
                         </h3>
-                        <Badge variant="teal">Crawl Complete</Badge>
+                        <Badge variant="emerald">Crawl Complete</Badge>
                       </div>
-                      <p className="text-xs text-slate-300 leading-relaxed">
+                      <p className="text-xs text-slate-600 leading-relaxed">
                         Playwright extracted {analysis.buttons?.length ?? 0} buttons, {analysis.inputs?.length ?? 0} inputs, and {analysis.headings?.length ?? 0} headings. Synthesize functional test cases with AI to start testing.
                       </p>
                     </div>
@@ -600,7 +614,7 @@ function ProjectDetailsContent() {
                         onClick={() => setIsGenerateModalOpen(true)}
                         isLoading={isGeneratingTestCases}
                         disabled={isGeneratingTestCases}
-                        className="shadow-md shadow-teal-900/40 whitespace-nowrap"
+                        className="bg-[#2e633f] hover:bg-[#234e32] text-white shadow-sm font-medium whitespace-nowrap"
                       >
                         {isGeneratingTestCases ? "Generating..." : "Generate Test Cases →"}
                       </Button>
@@ -613,30 +627,30 @@ function ProjectDetailsContent() {
 
               {/* Ready to Analyze Card (when no analysis has been run yet) */}
               {!analysis && !isAnalyzing && !isLoadingAnalysis && (
-                <Card className="border-slate-800 bg-slate-900/70">
+                <Card className="border-[#dce3da] bg-white shadow-xs">
                   <CardHeader>
-                    <div className="flex items-center gap-2 text-teal-400 text-xs font-semibold uppercase tracking-wider mb-1">
+                    <div className="flex items-center gap-2 text-[#2e633f] text-xs font-semibold uppercase tracking-wider mb-1">
                       <span>Phase 3 Engine</span>
                     </div>
-                    <CardTitle className="text-xl">
+                    <CardTitle className="text-xl text-slate-900">
                       Playwright Application Analyzer
                     </CardTitle>
-                    <CardDescription className="break-words [overflow-wrap:anywhere]">
-                      Automatically inspect and map interactive DOM elements, forms, buttons, inputs, and routes on <code className="text-teal-300 font-mono break-all">{project.url}</code>.
+                    <CardDescription className="break-words [overflow-wrap:anywhere] text-slate-500">
+                      Automatically inspect and map interactive DOM elements, forms, buttons, inputs, and routes on <code className="text-[#2e633f] font-mono break-all bg-[#f1f5ef] px-1 rounded border border-[#dce3da]">{project.url}</code>.
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <div className="p-4 bg-slate-950/70 border border-slate-800 rounded-lg text-xs sm:text-sm text-slate-300 space-y-2">
+                    <div className="p-4 bg-[#f8faf7] border border-[#e2e8e0] rounded-xl text-xs sm:text-sm text-slate-700 space-y-2">
                       <p>
                         <strong>How it works:</strong> The browser analyzer launches a secure headless Playwright session to crawl the target application, extract structured metadata, discover internal navigation routes, and structure element telemetry for future AI test generation.
                       </p>
-                      <div className="flex flex-wrap gap-2 pt-1 text-2xs font-mono text-slate-400">
-                        <span className="bg-slate-800 px-2 py-0.5 rounded">Headings</span>
-                        <span className="bg-slate-800 px-2 py-0.5 rounded">Routes</span>
-                        <span className="bg-slate-800 px-2 py-0.5 rounded">Forms</span>
-                        <span className="bg-slate-800 px-2 py-0.5 rounded">Inputs</span>
-                        <span className="bg-slate-800 px-2 py-0.5 rounded">Buttons</span>
-                        <span className="bg-slate-800 px-2 py-0.5 rounded">Selects</span>
+                      <div className="flex flex-wrap gap-2 pt-1 text-2xs font-mono text-slate-600">
+                        <span className="bg-white border border-[#dce3da] px-2 py-0.5 rounded">Headings</span>
+                        <span className="bg-white border border-[#dce3da] px-2 py-0.5 rounded">Routes</span>
+                        <span className="bg-white border border-[#dce3da] px-2 py-0.5 rounded">Forms</span>
+                        <span className="bg-white border border-[#dce3da] px-2 py-0.5 rounded">Inputs</span>
+                        <span className="bg-white border border-[#dce3da] px-2 py-0.5 rounded">Buttons</span>
+                        <span className="bg-white border border-[#dce3da] px-2 py-0.5 rounded">Selects</span>
                       </div>
                     </div>
 
@@ -645,6 +659,7 @@ function ProjectDetailsContent() {
                         variant="primary"
                         size="md"
                         onClick={handleAnalyze}
+                        className="bg-[#2e633f] hover:bg-[#234e32] text-white shadow-sm font-medium"
                       >
                         Start Application Analysis
                       </Button>
@@ -654,24 +669,24 @@ function ProjectDetailsContent() {
               )}
 
               {/* Project Metadata Details */}
-              <Card className="border-slate-800 bg-slate-900/50">
+              <Card className="border-[#dce3da] bg-white shadow-xs">
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-base font-semibold">
+                  <CardTitle className="text-base font-semibold text-slate-900">
                     Project Metadata
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="text-xs space-y-2">
-                  <div className="flex justify-between py-1.5 border-b border-slate-800/80">
+                  <div className="flex justify-between py-1.5 border-b border-[#e5ebe3]">
                     <span className="text-slate-500 uppercase tracking-wider font-semibold">
                       Project ID
                     </span>
-                    <span className="font-mono text-slate-300">{project.id}</span>
+                    <span className="font-mono text-slate-700">{project.id}</span>
                   </div>
-                  <div className="flex justify-between py-1.5 border-b border-slate-800/80">
+                  <div className="flex justify-between py-1.5 border-b border-[#e5ebe3]">
                     <span className="text-slate-500 uppercase tracking-wider font-semibold">
                       Created At
                     </span>
-                    <span className="text-slate-300">
+                    <span className="text-slate-700">
                       {new Date(project.createdAt).toLocaleString()}
                     </span>
                   </div>
@@ -679,7 +694,7 @@ function ProjectDetailsContent() {
                     <span className="text-slate-500 uppercase tracking-wider font-semibold">
                       Last Updated
                     </span>
-                    <span className="text-slate-300">
+                    <span className="text-slate-700">
                       {new Date(project.updatedAt).toLocaleString()}
                     </span>
                   </div>
@@ -762,10 +777,10 @@ function ProjectDetailsContent() {
           {activeTab === "settings" && (
             <div className="max-w-3xl space-y-8">
               {/* Edit Project Settings */}
-              <Card className="border-slate-800 bg-slate-900/80">
+              <Card className="border-[#dce3da] bg-white shadow-xs">
                 <CardHeader>
-                  <CardTitle className="text-lg">Project Configuration</CardTitle>
-                  <CardDescription>
+                  <CardTitle className="text-lg text-slate-900">Project Configuration</CardTitle>
+                  <CardDescription className="text-slate-500">
                     Update the display name or target URL for this testing project.
                   </CardDescription>
                 </CardHeader>
@@ -815,6 +830,7 @@ function ProjectDetailsContent() {
                         variant="primary"
                         size="md"
                         isLoading={isUpdating}
+                        className="bg-[#2e633f] hover:bg-[#234e32] text-white font-medium"
                       >
                         Save Changes
                       </Button>
@@ -824,21 +840,21 @@ function ProjectDetailsContent() {
               </Card>
 
               {/* Danger Zone */}
-              <Card className="border-rose-900/50 bg-rose-950/10">
+              <Card className="border-rose-200 bg-rose-50/40 shadow-xs">
                 <CardHeader>
-                  <CardTitle className="text-lg text-rose-300">
+                  <CardTitle className="text-lg text-rose-900">
                     Danger Zone
                   </CardTitle>
-                  <CardDescription className="text-rose-400/70">
+                  <CardDescription className="text-rose-600">
                     Irreversible project operations
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                   <div>
-                    <h4 className="font-semibold text-white text-sm">
+                    <h4 className="font-semibold text-slate-900 text-sm">
                       Delete this project
                     </h4>
-                    <p className="text-xs text-slate-400 mt-0.5">
+                    <p className="text-xs text-slate-600 mt-0.5">
                       Once deleted, this project and all its associated testing data cannot be recovered.
                     </p>
                   </div>

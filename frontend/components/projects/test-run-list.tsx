@@ -54,13 +54,13 @@ export function TestRunList({
   return (
     <div className="space-y-6">
       {/* Header Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-900/50 p-4 rounded-xl border border-slate-800/80">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-4 sm:p-5 rounded-2xl border border-[#dce3da] shadow-xs">
         <div>
-          <h2 className="text-lg font-bold text-white flex items-center gap-2">
+          <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
             Execution History
-            <Badge variant="teal">{testRuns.length} Runs</Badge>
+            <Badge variant="emerald">{testRuns.length} Runs</Badge>
           </h2>
-          <p className="text-xs text-slate-400 mt-0.5">
+          <p className="text-xs text-slate-500 mt-0.5">
             Asynchronously executed Playwright suites with AI failure root cause triage.
           </p>
         </div>
@@ -71,7 +71,7 @@ export function TestRunList({
           onClick={onRunAll}
           isLoading={isRunningTests}
           disabled={isRunningTests || !hasTestCases}
-          className="shadow-sm shadow-teal-900/40"
+          className="bg-[#2e633f] hover:bg-[#234e32] text-white shadow-sm font-medium"
         >
           <svg
             width={14}
@@ -100,21 +100,27 @@ export function TestRunList({
 
       {/* Loading Skeleton */}
       {isLoading && (
-        <div className="space-y-4">
+        <div className="space-y-3">
           {[1, 2, 3].map((i) => (
             <div
               key={i}
-              className="h-24 bg-slate-900/60 border border-slate-800 rounded-xl animate-pulse"
-            />
+              className="h-24 bg-white border border-[#dce3da] rounded-2xl p-4 shadow-xs animate-pulse space-y-2.5"
+            >
+              <div className="flex items-center gap-3">
+                <div className="h-4 w-28 bg-[#e2ece0] rounded" />
+                <div className="h-4 w-16 bg-[#e2ece0] rounded" />
+              </div>
+              <div className="h-3.5 w-64 bg-[#eef3ec] rounded" />
+            </div>
           ))}
         </div>
       )}
 
       {/* Empty State */}
       {!isLoading && testRuns.length === 0 && (
-        <Card className="border-slate-800 bg-slate-900/40 border-dashed">
-          <CardContent className="p-16 text-center space-y-4">
-            <div className="w-12 h-12 mx-auto rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-teal-400">
+        <Card className="border-[#dce3da] bg-white border-dashed shadow-xs rounded-2xl">
+          <CardContent className="p-14 text-center space-y-4">
+            <div className="w-12 h-12 mx-auto rounded-xl bg-[#e8f1e6] border border-[#c8dac3] flex items-center justify-center text-[#234e32]">
               <svg
                 width={24}
                 height={24}
@@ -132,10 +138,10 @@ export function TestRunList({
               </svg>
             </div>
             <div className="max-w-md mx-auto space-y-1">
-              <h3 className="text-base font-bold text-slate-100">
+              <h3 className="text-base font-bold text-slate-900">
                 No Test Runs Executed
               </h3>
-              <p className="text-xs text-slate-400 leading-relaxed">
+              <p className="text-xs text-slate-500 leading-relaxed">
                 {hasTestCases
                   ? "You have generated test cases ready to execute! Click 'Run All Tests' to dispatch an automated Playwright run."
                   : "Generate test cases first in the 'Test Cases' tab, then trigger an execution."}
@@ -143,7 +149,12 @@ export function TestRunList({
             </div>
             {hasTestCases && (
               <div className="pt-2">
-                <Button variant="primary" size="sm" onClick={onRunAll}>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  onClick={onRunAll}
+                  className="bg-[#2e633f] hover:bg-[#234e32] text-white shadow-sm font-medium"
+                >
                   Run All Tests Now
                 </Button>
               </div>
@@ -165,41 +176,41 @@ export function TestRunList({
               <div
                 key={run.id}
                 onClick={() => onSelectRun(run.id)}
-                className="group cursor-pointer bg-slate-900/60 hover:bg-slate-900/90 border border-slate-800 hover:border-teal-700/60 rounded-xl p-4 transition-all duration-150 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                className="group cursor-pointer bg-white hover:bg-[#fbfcfb] border border-[#dce3da] hover:border-[#b8c7b4] rounded-2xl p-4 shadow-xs transition-all duration-150 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
               >
                 <div className="space-y-2 min-w-0">
                   <div className="flex items-center gap-3">
-                    <span className="font-mono text-xs text-slate-400 font-semibold group-hover:text-teal-300 transition-colors">
+                    <span className="font-mono text-xs text-slate-700 font-semibold group-hover:text-[#2e633f] transition-colors">
                       Run #{run.id.slice(-8)}
                     </span>
                     {getStatusBadge(run.status)}
-                    <span className="text-2xs text-slate-500">
+                    <span className="text-2xs text-slate-400">
                       {new Date(run.createdAt).toLocaleString()}
                     </span>
                   </div>
 
                   {summary && (
                     <div className="flex flex-wrap items-center gap-2 text-xs">
-                      <span className="text-slate-400 font-medium">
+                      <span className="text-slate-600 font-medium">
                         {summary.total} Tests:
                       </span>
                       {summary.passed > 0 && (
-                        <span className="text-emerald-400 font-semibold flex items-center gap-1">
+                        <span className="text-emerald-600 font-semibold flex items-center gap-1">
                           ✓ {summary.passed} Passed
                         </span>
                       )}
                       {summary.failed > 0 && (
-                        <span className="text-red-400 font-semibold flex items-center gap-1">
+                        <span className="text-rose-600 font-semibold flex items-center gap-1">
                           ✗ {summary.failed} Failed
                         </span>
                       )}
                       {summary.skipped > 0 && (
-                        <span className="text-slate-500 flex items-center gap-1">
+                        <span className="text-slate-400 flex items-center gap-1">
                           • {summary.skipped} Skipped
                         </span>
                       )}
-                      <span className="text-slate-600">•</span>
-                      <span className="text-slate-400 font-mono text-2xs">
+                      <span className="text-slate-300">•</span>
+                      <span className="text-slate-500 font-mono text-2xs">
                         ⏱ {durationSec}s
                       </span>
                     </div>
@@ -210,7 +221,7 @@ export function TestRunList({
                   <Button
                     variant="outline"
                     size="sm"
-                    className="text-xs group-hover:border-teal-500/50"
+                    className="text-xs border-[#dce3da] bg-white text-slate-700 group-hover:border-[#b8c7b4] group-hover:text-slate-900"
                   >
                     View Details →
                   </Button>

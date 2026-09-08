@@ -145,13 +145,14 @@ export function CreateProjectModal({
           disabled={isSubmitting}
         />
 
-        <div className="pt-3 flex items-center justify-end gap-3 border-t border-slate-800">
+        <div className="pt-4 flex items-center justify-end gap-3 border-t border-[#e5ebe3]">
           <Button
             type="button"
             variant="ghost"
             size="md"
             onClick={handleClose}
             disabled={isSubmitting}
+            className="text-slate-600 hover:text-slate-900"
           >
             Cancel
           </Button>
@@ -160,6 +161,7 @@ export function CreateProjectModal({
             variant="primary"
             size="md"
             isLoading={isSubmitting}
+            className="bg-[#2e633f] hover:bg-[#234e32] text-white"
           >
             Create Project
           </Button>

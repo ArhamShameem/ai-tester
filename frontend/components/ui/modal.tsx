@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect } from "react";
+import { X } from "lucide-react";
 
 export interface ModalProps {
   isOpen: boolean;
@@ -52,7 +53,7 @@ export function Modal({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm transition-opacity"
+        className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs transition-opacity"
         onClick={onClose}
         aria-hidden="true"
       />
@@ -62,19 +63,19 @@ export function Modal({
         role="dialog"
         aria-modal="true"
         aria-labelledby="modal-title"
-        className={`relative w-full ${widthClasses[maxWidth]} rounded-xl bg-slate-900 border border-slate-800 shadow-2xl z-10 overflow-hidden transform transition-all`}
+        className={`relative w-full ${widthClasses[maxWidth]} rounded-2xl bg-white border border-[#dce3da] shadow-2xl z-10 overflow-hidden transform transition-all text-slate-900`}
       >
         {/* Header */}
-        <div className="flex items-start justify-between p-6 pb-4 border-b border-slate-800">
+        <div className="flex items-start justify-between p-6 pb-4 border-b border-[#e5ebe3]">
           <div>
             <h3
               id="modal-title"
-              className="text-lg font-bold text-slate-100 tracking-tight"
+              className="text-lg font-bold text-slate-900 tracking-tight"
             >
               {title}
             </h3>
             {description && (
-              <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+              <p className="text-xs text-slate-500 mt-1 leading-relaxed">
                 {description}
               </p>
             )}
@@ -82,33 +83,19 @@ export function Modal({
           <button
             onClick={onClose}
             type="button"
-            className="text-slate-400 hover:text-slate-200 p-1 rounded-lg hover:bg-slate-800 transition-colors cursor-pointer"
-            aria-label="Close dialog"
+            className="text-slate-400 hover:text-slate-700 p-1.5 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
+            aria-label="Close modal"
           >
-            <svg
-              width={18}
-              height={18}
-              className="w-4.5 h-4.5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
+            <X className="w-4 h-4" />
           </button>
         </div>
 
-        {/* Body */}
+        {/* Content Body */}
         <div className="p-6">{children}</div>
 
-        {/* Footer */}
+        {/* Optional Footer */}
         {footer && (
-          <div className="p-6 pt-4 border-t border-slate-800 bg-slate-950/40 flex items-center justify-end gap-3">
+          <div className="flex items-center justify-end gap-3 p-6 pt-4 border-t border-[#e5ebe3] bg-[#fbfcfb]">
             {footer}
           </div>
         )}

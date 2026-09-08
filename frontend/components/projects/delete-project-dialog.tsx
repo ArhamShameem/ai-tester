@@ -60,17 +60,17 @@ export function DeleteProjectDialog({
         </Alert>
       )}
 
-      <div className="space-y-3 text-sm text-slate-300">
+      <div className="space-y-3 text-sm text-slate-700">
         <p>
           Are you sure you want to permanently delete{" "}
-          <strong className="text-white font-semibold">{project.name}</strong>?
+          <strong className="text-slate-900 font-semibold">{project.name}</strong>?
         </p>
-        <p className="text-xs text-slate-400 bg-rose-950/20 border border-rose-900/40 p-3 rounded-lg leading-relaxed">
+        <p className="text-xs text-rose-800 bg-rose-50 border border-rose-200 p-3 rounded-xl leading-relaxed">
           All associated Playwright test cases, execution traces, and historical run logs belonging to this project will be permanently purged.
         </p>
       </div>
 
-      <div className="mt-6 flex items-center justify-end gap-3 pt-4 border-t border-slate-800">
+      <div className="mt-6 flex items-center justify-end gap-3 pt-4 border-t border-[#e5ebe3]">
         <Button
           type="button"
           variant="ghost"

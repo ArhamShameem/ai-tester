@@ -93,13 +93,13 @@ export function TestCaseList({
   return (
     <div className="space-y-6">
       {/* Action Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-900/50 p-4 rounded-xl border border-slate-800/80">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-4 sm:p-5 rounded-2xl border border-[#dce3da] shadow-xs">
         <div>
-          <h2 className="text-lg font-bold text-white flex items-center gap-2">
+          <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
             Functional Test Suite
-            <Badge variant="teal">{testCases.length} Tests</Badge>
+            <Badge variant="emerald">{testCases.length} Tests</Badge>
           </h2>
-          <p className="text-xs text-slate-400 mt-0.5">
+          <p className="text-xs text-slate-500 mt-0.5">
             Strict, deterministic Playwright test cases generated from crawled application semantics.
           </p>
         </div>
@@ -111,7 +111,7 @@ export function TestCaseList({
               size="sm"
               onClick={() => setIsClearModalOpen(true)}
               disabled={isGenerating || isRunningTests || isClearing}
-              className="text-slate-400 hover:text-rose-400 text-xs"
+              className="text-slate-500 hover:text-rose-600 hover:bg-rose-50 text-xs"
             >
               Clear Suite
             </Button>
@@ -124,11 +124,12 @@ export function TestCaseList({
             isLoading={isGenerating}
             disabled={isGenerating || isRunningTests}
             title={!hasAnalysis ? "Application must be analyzed first" : undefined}
+            className="border-[#dce3da] bg-white text-slate-700 hover:text-slate-900 hover:border-[#b8c7b4] shadow-2xs"
           >
             <svg
               width={14}
               height={14}
-              className="w-3.5 h-3.5 mr-1.5"
+              className="w-3.5 h-3.5 mr-1.5 text-slate-500"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -153,7 +154,7 @@ export function TestCaseList({
             onClick={onRunAll}
             isLoading={isRunningTests}
             disabled={isRunningTests || testCases.length === 0}
-            className="shadow-sm shadow-teal-900/40"
+            className="bg-[#2e633f] hover:bg-[#234e32] text-white shadow-sm font-medium"
           >
             <svg
               width={14}
@@ -193,21 +194,28 @@ export function TestCaseList({
           {[1, 2, 3].map((i) => (
             <div
               key={i}
-              className="h-36 bg-slate-900/60 border border-slate-800 rounded-xl animate-pulse"
-            />
+              className="h-36 bg-white border border-[#dce3da] rounded-2xl p-5 space-y-3 shadow-xs animate-pulse"
+            >
+              <div className="flex justify-between items-center">
+                <div className="h-5 w-48 bg-[#e2ece0] rounded" />
+                <div className="h-4 w-12 bg-[#e2ece0] rounded" />
+              </div>
+              <div className="h-3.5 w-3/4 bg-[#eef3ec] rounded" />
+              <div className="h-14 bg-[#f8faf7] border border-[#e2e8e0] rounded-xl" />
+            </div>
           ))}
         </div>
       )}
 
       {/* Generating Indicator Card */}
       {isGenerating && (
-        <Card className="border-teal-800/80 bg-teal-950/20 p-8 text-center space-y-3">
-          <div className="w-10 h-10 mx-auto rounded-full border-2 border-teal-500/30 border-t-teal-400 animate-spin" />
+        <Card className="border-[#c8dac3] bg-white p-8 text-center space-y-3 shadow-xs">
+          <div className="w-10 h-10 mx-auto rounded-full border-3 border-[#2e633f]/20 border-t-[#2e633f] animate-spin" />
           <div className="max-w-md mx-auto space-y-1">
-            <h3 className="text-base font-bold text-teal-200">
+            <h3 className="text-base font-bold text-slate-900">
               Synthesizing Structured Test Suite
             </h3>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-slate-600">
               Querying AI engine with target application telemetry, discovering interaction paths, and enforcing strict Zod validation schema.
             </p>
           </div>
@@ -216,9 +224,9 @@ export function TestCaseList({
 
       {/* Empty State */}
       {!isLoading && !isGenerating && testCases.length === 0 && (
-        <Card className="border-slate-800 bg-slate-900/40 border-dashed">
-          <CardContent className="p-16 text-center space-y-4">
-            <div className="w-12 h-12 mx-auto rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-teal-400">
+        <Card className="border-[#dce3da] bg-white border-dashed shadow-xs">
+          <CardContent className="p-14 text-center space-y-4">
+            <div className="w-12 h-12 mx-auto rounded-xl bg-[#e8f1e6] border border-[#c8dac3] flex items-center justify-center text-[#234e32]">
               <svg
                 width={24}
                 height={24}
@@ -236,10 +244,10 @@ export function TestCaseList({
               </svg>
             </div>
             <div className="max-w-md mx-auto space-y-1">
-              <h3 className="text-base font-bold text-slate-100">
+              <h3 className="text-base font-bold text-slate-900">
                 No Test Cases Generated Yet
               </h3>
-              <p className="text-xs text-slate-400 leading-relaxed">
+              <p className="text-xs text-slate-600 leading-relaxed">
                 {hasAnalysis
                   ? "Your application analysis is ready! Click 'Generate Test Cases' above to create automated functional tests."
                   : "First crawl the target application in the 'Overview & Analysis' tab, then click 'Generate Test Cases'."}
@@ -252,6 +260,7 @@ export function TestCaseList({
                   size="sm"
                   onClick={onOpenGenerateModal || (() => onGenerate())}
                   isLoading={isGenerating}
+                  className="bg-[#2e633f] hover:bg-[#234e32] text-white shadow-sm font-medium"
                 >
                   Generate Test Cases Now
                 </Button>
@@ -270,21 +279,21 @@ export function TestCaseList({
             return (
               <Card
                 key={tc.id}
-                className="border-slate-800 bg-slate-900/60 hover:border-slate-700/80 transition-all duration-150"
+                className="border-[#dce3da] bg-white hover:border-[#b8c7b4] shadow-xs transition-all duration-150 rounded-2xl"
               >
                 <CardHeader className="pb-3 pt-4 px-5">
                   <div className="flex items-start justify-between gap-4">
                     <div className="space-y-1 min-w-0 flex-1">
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-mono font-bold text-slate-500 shrink-0">
+                        <span className="text-xs font-mono font-bold text-slate-400 shrink-0">
                           #{index + 1}
                         </span>
-                        <CardTitle className="text-base text-slate-100 break-words [overflow-wrap:anywhere]">
+                        <CardTitle className="text-base text-slate-900 break-words [overflow-wrap:anywhere] font-bold">
                           {tc.title}
                         </CardTitle>
                       </div>
                       {tc.description && (
-                        <p className="text-xs text-slate-400 leading-relaxed break-words [overflow-wrap:anywhere]">
+                        <p className="text-xs text-slate-600 leading-relaxed break-words [overflow-wrap:anywhere]">
                           {tc.description}
                         </p>
                       )}
@@ -294,7 +303,7 @@ export function TestCaseList({
                       variant="ghost"
                       size="sm"
                       onClick={() => setCaseToDelete(tc)}
-                      className="text-slate-400 hover:text-red-400 hover:bg-red-950/20 shrink-0 h-8 px-2"
+                      className="text-slate-400 hover:text-rose-600 hover:bg-rose-50 shrink-0 h-8 px-2"
                       title="Delete test case"
                     >
                       <svg
@@ -318,34 +327,34 @@ export function TestCaseList({
 
                 <CardContent className="px-5 pb-4 pt-0 space-y-3">
                   {/* Steps List */}
-                  <div className="bg-slate-950/60 border border-slate-800/80 rounded-lg p-3 space-y-2">
-                    <div className="text-2xs font-semibold uppercase tracking-wider text-slate-400">
+                  <div className="bg-[#f8faf7] border border-[#e2e8e0] rounded-xl p-3.5 space-y-2">
+                    <div className="text-2xs font-semibold uppercase tracking-wider text-slate-500">
                       Sequential Execution Steps ({steps.length})
                     </div>
                     <div className="space-y-1.5">
                       {steps.map((step, stepIdx) => (
                         <div
                           key={stepIdx}
-                          className="flex flex-wrap sm:flex-nowrap items-center gap-2 text-xs font-mono text-slate-300 min-w-0"
+                          className="flex flex-wrap sm:flex-nowrap items-center gap-2 text-xs font-mono text-slate-700 min-w-0"
                         >
-                          <span className="text-slate-500 text-2xs w-4 shrink-0">
+                          <span className="text-slate-400 text-2xs w-4 shrink-0 font-medium">
                             {stepIdx + 1}.
                           </span>
                           <Badge
                             variant={getActionBadgeVariant(step.action)}
-                            className="text-2xs px-1.5 py-0 uppercase shrink-0"
+                            className="text-2xs px-1.5 py-0 uppercase shrink-0 font-medium"
                           >
                             {step.action}
                           </Badge>
                           <span
-                            className="text-teal-300 truncate max-w-xs sm:max-w-md min-w-0"
+                            className="text-[#2e633f] font-semibold truncate max-w-xs sm:max-w-md min-w-0"
                             title={step.target}
                           >
                             &quot;{step.target}&quot;
                           </span>
                           {step.value && (
                             <span
-                              className="text-slate-400 truncate max-w-xs min-w-0"
+                              className="text-slate-500 truncate max-w-xs min-w-0"
                               title={step.value}
                             >
                               → &quot;{step.value}&quot;
@@ -357,11 +366,11 @@ export function TestCaseList({
                   </div>
 
                   {/* Expected Result */}
-                  <div className="flex items-start gap-2 text-xs text-slate-300">
-                    <span className="font-semibold text-slate-400 shrink-0">
+                  <div className="flex items-start gap-2 text-xs text-slate-700">
+                    <span className="font-semibold text-slate-500 shrink-0">
                       Expected:
                     </span>
-                    <span className="text-slate-300 italic break-words [overflow-wrap:anywhere]">
+                    <span className="text-slate-700 italic break-words [overflow-wrap:anywhere]">
                       {tc.expectedResult}
                     </span>
                   </div>
@@ -385,6 +394,7 @@ export function TestCaseList({
               size="sm"
               onClick={() => setCaseToDelete(null)}
               disabled={!!deletingId}
+              className="border-[#dce3da]"
             >
               Cancel
             </Button>
@@ -399,9 +409,9 @@ export function TestCaseList({
           </div>
         }
       >
-        <p className="text-sm text-slate-300">
+        <p className="text-sm text-slate-600">
           Are you sure you want to permanently delete{" "}
-          <strong className="text-white">&quot;{caseToDelete?.title}&quot;</strong>?
+          <strong className="text-slate-900">&quot;{caseToDelete?.title}&quot;</strong>?
           This will also remove any associated historical results.
         </p>
       </Modal>
@@ -419,6 +429,7 @@ export function TestCaseList({
               size="sm"
               onClick={() => setIsClearModalOpen(false)}
               disabled={isClearing}
+              className="border-[#dce3da]"
             >
               Cancel
             </Button>
@@ -433,9 +444,9 @@ export function TestCaseList({
           </div>
         }
       >
-        <p className="text-sm text-slate-300">
+        <p className="text-sm text-slate-600">
           Are you sure you want to delete all{" "}
-          <strong className="text-white">{testCases.length} test cases</strong> in this project?
+          <strong className="text-slate-900">{testCases.length} test cases</strong> in this project?
           This will reset your functional test suite and cannot be undone.
         </p>
       </Modal>

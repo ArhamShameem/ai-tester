@@ -76,12 +76,12 @@ export function TestRunDetail({ runId, onBack }: TestRunDetailProps) {
     return (
       <div className="space-y-6">
         {onBack && (
-          <Button variant="ghost" size="sm" onClick={onBack} className="text-slate-400">
+          <Button variant="ghost" size="sm" onClick={onBack} className="text-slate-500 hover:text-slate-900">
             ← Back to Runs List
           </Button>
         )}
-        <div className="h-32 bg-slate-900/60 border border-slate-800 rounded-xl animate-pulse" />
-        <div className="h-64 bg-slate-900/60 border border-slate-800 rounded-xl animate-pulse" />
+        <div className="h-32 bg-white border border-[#dce3da] rounded-2xl p-6 shadow-xs animate-pulse" />
+        <div className="h-64 bg-white border border-[#dce3da] rounded-2xl p-6 shadow-xs animate-pulse" />
       </div>
     );
   }
@@ -90,7 +90,7 @@ export function TestRunDetail({ runId, onBack }: TestRunDetailProps) {
     return (
       <div className="space-y-4">
         {onBack && (
-          <Button variant="ghost" size="sm" onClick={onBack} className="text-slate-400">
+          <Button variant="ghost" size="sm" onClick={onBack} className="text-slate-500 hover:text-slate-900">
             ← Back to Runs List
           </Button>
         )}
@@ -116,33 +116,33 @@ export function TestRunDetail({ runId, onBack }: TestRunDetailProps) {
             variant="ghost"
             size="sm"
             onClick={onBack}
-            className="text-slate-400 hover:text-white"
+            className="text-slate-600 hover:text-slate-900 hover:bg-slate-100"
           >
             ← Back to Runs List
           </Button>
         )}
         {isLive && (
-          <span className="text-xs text-teal-400 flex items-center gap-2 font-mono">
-            <span className="w-2 h-2 rounded-full bg-teal-400 animate-ping" />
+          <span className="text-xs text-[#2e633f] flex items-center gap-2 font-mono font-medium">
+            <span className="w-2 h-2 rounded-full bg-[#2e633f] animate-ping" />
             Live polling execution status...
           </span>
         )}
       </div>
 
       {/* Overview Banner */}
-      <div className="bg-slate-900/70 border border-slate-800 rounded-xl p-5 sm:p-6 space-y-4">
+      <div className="bg-white border border-[#dce3da] rounded-2xl p-5 sm:p-6 space-y-4 shadow-xs">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="space-y-1 min-w-0">
             <div className="flex items-center gap-3">
-              <h2 className="text-xl font-bold text-white font-mono truncate">
+              <h2 className="text-xl font-bold text-slate-900 font-mono truncate">
                 Run #{run.id}
               </h2>
               {getStatusBadge(run.status)}
             </div>
-            <div className="text-xs text-slate-400 flex flex-wrap items-center gap-2 min-w-0 max-w-full">
-              <span className="shrink-0">Target:</span>
+            <div className="text-xs text-slate-500 flex flex-wrap items-center gap-2 min-w-0 max-w-full">
+              <span className="shrink-0 font-medium">Target:</span>
               <span
-                className="text-teal-300 font-mono break-all line-clamp-1 max-w-xl inline-block"
+                className="text-[#2e633f] font-mono break-all line-clamp-1 max-w-xl inline-block bg-[#f1f5ef] px-2 py-0.5 rounded border border-[#dce3da]"
                 title={run.project?.url}
               >
                 {run.project?.url || "N/A"}
@@ -155,43 +155,43 @@ export function TestRunDetail({ runId, onBack }: TestRunDetailProps) {
 
         {/* Metrics Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 pt-2">
-          <div className="bg-slate-950/70 border border-slate-800/80 rounded-lg p-3">
-            <div className="text-2xs font-semibold uppercase text-slate-400">
+          <div className="bg-[#f8faf7] border border-[#e2e8e0] rounded-xl p-3">
+            <div className="text-2xs font-semibold uppercase text-slate-500">
               Total Tests
             </div>
-            <div className="text-xl font-bold text-white mt-1">
+            <div className="text-xl font-bold text-slate-900 mt-1">
               {summary?.total ?? 0}
             </div>
           </div>
-          <div className="bg-slate-950/70 border border-slate-800/80 rounded-lg p-3">
-            <div className="text-2xs font-semibold uppercase text-emerald-400">
+          <div className="bg-[#f0f7ef] border border-[#cbe2ca] rounded-xl p-3">
+            <div className="text-2xs font-semibold uppercase text-emerald-700">
               Passed
             </div>
-            <div className="text-xl font-bold text-emerald-400 mt-1">
+            <div className="text-xl font-bold text-emerald-700 mt-1">
               {summary?.passed ?? 0}
             </div>
           </div>
-          <div className="bg-slate-950/70 border border-slate-800/80 rounded-lg p-3">
-            <div className="text-2xs font-semibold uppercase text-red-400">
+          <div className="bg-rose-50 border border-rose-200 rounded-xl p-3">
+            <div className="text-2xs font-semibold uppercase text-rose-700">
               Failed
             </div>
-            <div className="text-xl font-bold text-red-400 mt-1">
+            <div className="text-xl font-bold text-rose-700 mt-1">
               {summary?.failed ?? 0}
             </div>
           </div>
-          <div className="bg-slate-950/70 border border-slate-800/80 rounded-lg p-3">
-            <div className="text-2xs font-semibold uppercase text-slate-400">
+          <div className="bg-[#f8faf7] border border-[#e2e8e0] rounded-xl p-3">
+            <div className="text-2xs font-semibold uppercase text-slate-500">
               Skipped
             </div>
-            <div className="text-xl font-bold text-slate-400 mt-1">
+            <div className="text-xl font-bold text-slate-600 mt-1">
               {summary?.skipped ?? 0}
             </div>
           </div>
-          <div className="bg-slate-950/70 border border-slate-800/80 rounded-lg p-3 col-span-2 sm:col-span-1">
-            <div className="text-2xs font-semibold uppercase text-teal-400">
+          <div className="bg-[#f1f7ef] border border-[#cbe2ca] rounded-xl p-3 col-span-2 sm:col-span-1">
+            <div className="text-2xs font-semibold uppercase text-[#234e32]">
               Duration
             </div>
-            <div className="text-xl font-bold text-teal-300 font-mono mt-1">
+            <div className="text-xl font-bold text-[#234e32] font-mono mt-1">
               {durationSec}s
             </div>
           </div>
@@ -200,12 +200,12 @@ export function TestRunDetail({ runId, onBack }: TestRunDetailProps) {
 
       {/* Individual Test Results */}
       <div className="space-y-4">
-        <h3 className="text-base font-bold text-white flex items-center gap-2">
+        <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
           Individual Test Results ({run.results?.length ?? 0})
         </h3>
 
         {(!run.results || run.results.length === 0) && (
-          <Card className="border-slate-800 bg-slate-900/40 p-8 text-center text-slate-400 text-sm">
+          <Card className="border-[#dce3da] bg-white p-8 text-center text-slate-500 text-sm shadow-xs rounded-2xl">
             {isLive
               ? "Browser engine is preparing test session. Results will appear as tests complete..."
               : "No test results recorded for this run."}
@@ -220,27 +220,27 @@ export function TestRunDetail({ runId, onBack }: TestRunDetailProps) {
           return (
             <Card
               key={result.id}
-              className={`border transition-all duration-150 ${
+              className={`border transition-all duration-150 rounded-2xl shadow-xs ${
                 isFailed
-                  ? "border-red-900/60 bg-red-950/10"
+                  ? "border-rose-300 bg-rose-50/20"
                   : isPassed
-                  ? "border-slate-800 bg-slate-900/50"
-                  : "border-slate-800 bg-slate-900/30"
+                  ? "border-[#dce3da] bg-white hover:border-[#b8c7b4]"
+                  : "border-[#dce3da] bg-white"
               }`}
             >
               <CardHeader className="pb-3 pt-4 px-5">
                 <div className="flex items-start justify-between gap-4">
                   <div className="space-y-1 min-w-0 flex-1">
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-mono font-bold text-slate-500 shrink-0">
+                      <span className="text-xs font-mono font-bold text-slate-400 shrink-0">
                         #{idx + 1}
                       </span>
-                      <CardTitle className="text-base text-slate-100 break-words [overflow-wrap:anywhere]">
+                      <CardTitle className="text-base text-slate-900 font-bold break-words [overflow-wrap:anywhere]">
                         {result.testCase?.title || `Test Case ${result.testCaseId}`}
                       </CardTitle>
                     </div>
                     {result.testCase?.description && (
-                      <p className="text-xs text-slate-400 leading-relaxed break-words [overflow-wrap:anywhere]">
+                      <p className="text-xs text-slate-600 leading-relaxed break-words [overflow-wrap:anywhere]">
                         {result.testCase.description}
                       </p>
                     )}
@@ -248,7 +248,7 @@ export function TestRunDetail({ runId, onBack }: TestRunDetailProps) {
 
                   <div className="flex items-center gap-3 shrink-0">
                     {result.duration !== null && (
-                      <span className="text-2xs font-mono text-slate-400">
+                      <span className="text-2xs font-mono text-slate-500">
                         {result.duration}ms
                       </span>
                     )}
@@ -264,8 +264,8 @@ export function TestRunDetail({ runId, onBack }: TestRunDetailProps) {
               <CardContent className="px-5 pb-5 pt-0 space-y-4">
                 {/* Expected Result */}
                 {result.testCase?.expectedResult && (
-                  <div className="text-xs text-slate-400 break-words [overflow-wrap:anywhere]">
-                    <strong className="text-slate-300">Expected: </strong>
+                  <div className="text-xs text-slate-600 break-words [overflow-wrap:anywhere]">
+                    <strong className="text-slate-800">Expected: </strong>
                     <span className="italic">{result.testCase.expectedResult}</span>
                   </div>
                 )}
@@ -273,10 +273,10 @@ export function TestRunDetail({ runId, onBack }: TestRunDetailProps) {
                 {/* Failure Error Trace */}
                 {isFailed && result.error && (
                   <div className="space-y-1.5">
-                    <div className="text-2xs font-semibold uppercase tracking-wider text-red-400">
+                    <div className="text-2xs font-semibold uppercase tracking-wider text-rose-600">
                       Playwright Error Trace
                     </div>
-                    <pre className="bg-slate-950 border border-red-900/40 rounded-lg p-3 text-xs font-mono text-red-300 overflow-x-auto whitespace-pre-wrap break-all leading-relaxed max-w-full">
+                    <pre className="bg-[#fef2f2] border border-rose-200 rounded-xl p-3 text-xs font-mono text-rose-800 overflow-x-auto whitespace-pre-wrap break-all leading-relaxed max-w-full">
                       {result.error}
                     </pre>
                   </div>
@@ -285,21 +285,21 @@ export function TestRunDetail({ runId, onBack }: TestRunDetailProps) {
                 {/* Screenshot Preview */}
                 {result.screenshot && (
                   <div className="space-y-2">
-                    <div className="text-2xs font-semibold uppercase tracking-wider text-slate-400">
+                    <div className="text-2xs font-semibold uppercase tracking-wider text-slate-500">
                       Failure Screenshot Artifact
                     </div>
-                    <div className="relative inline-block border border-slate-800 rounded-lg overflow-hidden group">
+                    <div className="relative inline-block border border-[#dce3da] rounded-xl overflow-hidden group shadow-2xs">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={getFullScreenshotUrl(result.screenshot)}
                         alt="Test Failure Snapshot"
-                        className="max-h-48 rounded object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                        className="max-h-48 rounded-xl object-cover cursor-pointer hover:opacity-95 transition-opacity"
                         onClick={() =>
                           setSelectedScreenshot(getFullScreenshotUrl(result.screenshot!))
                         }
                       />
-                      <div className="absolute inset-0 bg-slate-950/40 opacity-0 group-hover:opacity-100 flex items-center justify-center pointer-events-none transition-opacity">
-                        <span className="text-xs font-semibold text-white bg-slate-900/90 px-2.5 py-1 rounded shadow">
+                      <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 flex items-center justify-center pointer-events-none transition-opacity">
+                        <span className="text-xs font-semibold text-white bg-slate-900/90 px-3 py-1.5 rounded-lg shadow">
                           Click to expand
                         </span>
                       </div>
@@ -309,13 +309,13 @@ export function TestRunDetail({ runId, onBack }: TestRunDetailProps) {
 
                 {/* AI Failure Analysis Card */}
                 {isFailed && analysis && (
-                  <div className="bg-slate-950/80 border border-amber-500/30 rounded-xl p-4 sm:p-5 space-y-3 shadow-inner">
-                    <div className="flex items-center justify-between gap-2 border-b border-slate-800/80 pb-3">
+                  <div className="bg-[#fffdf5] border border-amber-300 rounded-2xl p-4 sm:p-5 space-y-3 shadow-xs">
+                    <div className="flex items-center justify-between gap-2 border-b border-amber-200/80 pb-3">
                       <div className="flex items-center gap-2">
                         <svg
                           width={16}
                           height={16}
-                          className="w-4 h-4 text-amber-400"
+                          className="w-4 h-4 text-amber-600"
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
@@ -327,7 +327,7 @@ export function TestRunDetail({ runId, onBack }: TestRunDetailProps) {
                             d="M13 10V3L4 14h7v7l9-11h-7z"
                           />
                         </svg>
-                        <h4 className="text-sm font-bold text-amber-200">
+                        <h4 className="text-sm font-bold text-amber-900">
                           AI Failure Diagnosis
                         </h4>
                       </div>
@@ -335,12 +335,8 @@ export function TestRunDetail({ runId, onBack }: TestRunDetailProps) {
                       <div className="flex flex-wrap items-center gap-2">
                         {analysis.source && (
                           <Badge
-                            variant={
-                              analysis.source.includes("Ollama")
-                                ? "teal"
-                                : "slate"
-                            }
-                            className="text-2xs font-mono"
+                            variant="slate"
+                            className="text-2xs font-mono bg-amber-100 text-amber-800 border-amber-200"
                           >
                             Engine: {analysis.source}
                           </Badge>
@@ -353,30 +349,30 @@ export function TestRunDetail({ runId, onBack }: TestRunDetailProps) {
 
                     {/* Likely Root Cause */}
                     <div className="space-y-1">
-                      <div className="text-2xs font-semibold uppercase tracking-wider text-slate-400">
+                      <div className="text-2xs font-semibold uppercase tracking-wider text-amber-800">
                         Likely Root Cause
                       </div>
-                      <div className="text-sm font-semibold text-white break-words [overflow-wrap:anywhere]">
+                      <div className="text-sm font-semibold text-slate-900 break-words [overflow-wrap:anywhere]">
                         {analysis.rootCause}
                       </div>
                     </div>
 
                     {/* Explanation */}
                     <div className="space-y-1">
-                      <div className="text-2xs font-semibold uppercase tracking-wider text-slate-400">
+                      <div className="text-2xs font-semibold uppercase tracking-wider text-amber-800">
                         Explanation
                       </div>
-                      <p className="text-xs text-slate-300 leading-relaxed break-words [overflow-wrap:anywhere]">
+                      <p className="text-xs text-slate-700 leading-relaxed break-words [overflow-wrap:anywhere]">
                         {analysis.explanation}
                       </p>
                     </div>
 
                     {/* Suggested Fix */}
-                    <div className="space-y-1 bg-amber-950/20 border border-amber-900/30 rounded-lg p-3">
-                      <div className="text-2xs font-semibold uppercase tracking-wider text-amber-300">
+                    <div className="space-y-1 bg-white/90 border border-amber-200 rounded-xl p-3">
+                      <div className="text-2xs font-semibold uppercase tracking-wider text-amber-800">
                         Suggested Fix
                       </div>
-                      <p className="text-xs text-amber-100 font-mono leading-relaxed break-words [overflow-wrap:anywhere]">
+                      <p className="text-xs text-slate-800 font-mono leading-relaxed break-words [overflow-wrap:anywhere]">
                         {analysis.suggestedFix}
                       </p>
                     </div>
@@ -389,7 +385,7 @@ export function TestRunDetail({ runId, onBack }: TestRunDetailProps) {
                       <button
                         type="button"
                         onClick={() => toggleRawJson(result.id)}
-                        className="text-teal-400 hover:underline ml-2"
+                        className="text-[#2e633f] font-medium hover:underline ml-2"
                       >
                         {expandedRawJson[result.id]
                           ? "Hide raw analysis"
@@ -398,7 +394,7 @@ export function TestRunDetail({ runId, onBack }: TestRunDetailProps) {
                     </div>
 
                     {expandedRawJson[result.id] && (
-                      <pre className="bg-slate-900 border border-slate-800 rounded p-2 text-2xs font-mono text-slate-400 overflow-x-auto">
+                      <pre className="bg-white border border-[#dce3da] rounded-xl p-3 text-2xs font-mono text-slate-700 overflow-x-auto">
                         {JSON.stringify(analysis, null, 2)}
                       </pre>
                     )}
@@ -407,8 +403,8 @@ export function TestRunDetail({ runId, onBack }: TestRunDetailProps) {
 
                 {/* AI Analyzing placeholder if failed but analysis still running */}
                 {isFailed && !analysis && (
-                  <div className="bg-slate-950/50 border border-slate-800 rounded-lg p-3 text-xs text-slate-400 flex items-center gap-2">
-                    <div className="w-3.5 h-3.5 rounded-full border-2 border-teal-500/30 border-t-teal-400 animate-spin shrink-0" />
+                  <div className="bg-[#f8faf7] border border-[#e2e8e0] rounded-xl p-3 text-xs text-slate-600 flex items-center gap-2">
+                    <div className="w-3.5 h-3.5 rounded-full border-2 border-[#2e633f]/30 border-t-[#2e633f] animate-spin shrink-0" />
                     <span>AI failure analysis is currently processing...</span>
                   </div>
                 )}
@@ -421,21 +417,22 @@ export function TestRunDetail({ runId, onBack }: TestRunDetailProps) {
       {/* Expanded Screenshot Modal */}
       {selectedScreenshot && (
         <div
-          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 cursor-zoom-out"
+          className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 cursor-zoom-out"
           onClick={() => setSelectedScreenshot(null)}
         >
-          <div className="relative max-w-5xl max-h-[90vh] bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-2xl">
+          <div className="relative max-w-5xl max-h-[90vh] bg-white border border-[#dce3da] rounded-2xl overflow-hidden shadow-2xl">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={selectedScreenshot}
               alt="Expanded Failure Snapshot"
               className="w-full h-auto object-contain max-h-[85vh]"
             />
-            <div className="p-3 bg-slate-950 text-right">
+            <div className="p-3 bg-[#f8faf7] border-t border-[#e2e8e0] text-right">
               <Button
-                variant="secondary"
+                variant="outline"
                 size="sm"
                 onClick={() => setSelectedScreenshot(null)}
+                className="border-[#dce3da] bg-white text-slate-700 hover:text-slate-900"
               >
                 Close Preview
               </Button>

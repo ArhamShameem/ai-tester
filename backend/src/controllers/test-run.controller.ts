@@ -120,6 +120,10 @@ export const getArtifact = async (
       throw new AppError("Artifact file not found", 404);
     }
 
+    if (filePath.startsWith("http://") || filePath.startsWith("https://")) {
+      return res.redirect(filePath);
+    }
+
     return res.sendFile(filePath);
   } catch (error) {
     next(error);
