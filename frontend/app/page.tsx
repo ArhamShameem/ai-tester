@@ -30,21 +30,6 @@ export default function HomePage() {
       {/* Hero Section */}
       <section className="relative z-10 py-16 sm:py-24 lg:py-28 px-4 sm:px-6 lg:px-8">
         <div className="max-w-5xl mx-auto text-center space-y-8">
-          {/* Top Badges Row */}
-          <div className="flex flex-wrap items-center justify-center gap-3">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#e2ece0] border border-[#d0dfcc] text-xs font-semibold text-[#234e32]">
-              <Sparkles className="w-3.5 h-3.5 text-[#2e633f]" />
-              Agentic Browser Automation v2
-            </div>
-
-            {/* TestSprite-style Product Hunt Badge */}
-            <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-white border border-[#dce3da] shadow-2xs">
-              <span className="text-amber-500 text-sm">🏆</span>
-              <span className="text-xs font-semibold text-slate-800">
-                #1 Autonomous QA Engine
-              </span>
-            </div>
-          </div>
 
           {/* Headline matching TestSprite Editorial Style */}
           <div className="space-y-4">

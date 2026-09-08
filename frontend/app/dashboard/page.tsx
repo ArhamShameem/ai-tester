@@ -120,7 +120,7 @@ function DashboardContent() {
               variant="outline"
               size="md"
               onClick={() => fetchProjects()}
-              isLoading={isLoading}
+              isLoading={isLoadingProjects}
               className="border-[#dce3da] text-slate-700 hover:text-slate-900 bg-white shadow-2xs"
               title="Refresh projects list"
             >

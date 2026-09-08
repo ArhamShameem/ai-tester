@@ -40,7 +40,7 @@ export function Navbar() {
       {/* TestSprite-style Top Announcement Banner */}
       <div className="bg-[#e2ece0] border-b border-[#d0dfcc] text-[#234e32] text-xs py-1.5 px-4 font-medium">
         <div className="max-w-7xl mx-auto flex items-center justify-center gap-2 text-center">
-          <span>The AI Tester Platform v2 is now live — <strong>agentic browser automation</strong>.</span>
+          <span>The AI Tester Platform now live — <strong>agentic browser automation</strong>.</span>
           <span className="hidden sm:inline-flex items-center gap-1 hover:underline cursor-pointer">
             <GitBranch className="w-3.5 h-3.5 text-[#2e633f]" />  <Link href="https://github.com/ArhamShameem/ai-tester" target="_blank" rel="noopener noreferrer"> Star on GitHub →</Link>
           </span>
