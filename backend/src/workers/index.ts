@@ -5,7 +5,7 @@ import { checkRedisHealth } from "../lib/redis";
 import { createTestWorker } from "./test.worker";
 import { createFailureAnalysisWorker } from "./failure-analysis.worker";
 
-async function startWorkers() {
+export async function startWorkers() {
   console.log("[WorkerEngine] Checking Redis connection...");
   const isOk = await checkRedisHealth();
 
@@ -29,14 +29,22 @@ async function startWorkers() {
     console.log("[WorkerEngine] Shutting down workers gracefully...");
     await testWorker?.close();
     await failureWorker?.close();
-    process.exit(0);
   };
 
-  process.on("SIGINT", shutdown);
-  process.on("SIGTERM", shutdown);
+  process.on("SIGINT", async () => {
+    await shutdown();
+    process.exit(0);
+  });
+  process.on("SIGTERM", async () => {
+    await shutdown();
+    process.exit(0);
+  });
 }
 
-startWorkers().catch((err) => {
-  console.error("[WorkerEngine] Fatal error starting workers:", err);
-  process.exit(1);
-});
+// Only auto-run if this file is executed directly (e.g. npm run worker)
+if (require.main === module) {
+  startWorkers().catch((err) => {
+    console.error("[WorkerEngine] Fatal error starting workers:", err);
+    process.exit(1);
+  });
+}

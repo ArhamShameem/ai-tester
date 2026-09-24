@@ -108,9 +108,6 @@ export default function LoginPage() {
             <span className="flex items-center gap-1 text-xs font-bold text-amber-600">
               🏆 #1
             </span>
-            <span className="text-xs text-slate-600 font-medium">
-              Autonomous Browser QA Engine
-            </span>
             <span className="w-1.5 h-1.5 rounded-full bg-[#2e633f]" />
             <span className="text-2xs font-mono text-[#2e633f] font-semibold">
               v1.63 Core

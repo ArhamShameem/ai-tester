@@ -1,7 +1,7 @@
 # 🧪 AI Tester Platform
 
 > **Autonomous, Agentic End-to-End Web Testing & AI Failure Diagnostics**  
-> Inspired by TestSprite. Built with Next.js 15, TypeScript, Express, Playwright, Ollama, BullMQ, and Supabase.
+> Inspired by TestSprite. Built with Next.js 15, TypeScript, Express, Playwright, Google Gemini, BullMQ, and Supabase.
 
 ---
 
@@ -9,7 +9,7 @@
 
 **AI Tester Platform** is a full-stack, developer-first autonomous quality assurance platform designed to replace manual script writing and slow debugging cycles. 
 
-By pairing **Playwright** browser crawling with **local LLMs (via Ollama)** and **Supabase**, the platform:
+By pairing **Playwright** browser crawling with **Google Gemini AI** and **Supabase**, the platform:
 1. **Explores target web applications** to gather deep DOM telemetry, input states, buttons, links, and navigation routes.
 2. **Synthesizes structured test suites** (happy path, edge cases, negative validation, authentication flows) validated against typed Zod schemas.
 3. **Executes tests in headless Chromium** with auto-waiting, dynamic element recovery, and step trace capture.
@@ -22,7 +22,7 @@ By pairing **Playwright** browser crawling with **local LLMs (via Ollama)** and 
 ## ⚡ Key Features
 
 - 🔍 **Autonomous DOM Discovery & Web Crawling**: Playwright analyzes target URLs, extracting interactive elements, forms, accessibility landmarks, and route structures.
-- 🧠 **AI-Powered Test Case Synthesis**: Generates structured, resilient test steps via Ollama models (`qwen3:4b`, `llama3.2`, `deepseek-r1`, etc.) without manual coding.
+- 🧠 **AI-Powered Test Case Synthesis**: Generates structured, resilient test steps via Google Gemini (`gemini-1.5-flash`, `gemini-2.0-flash`) without manual coding.
 - 🚦 **Asynchronous Queue Engine**: Background workers powered by **BullMQ** and **Redis** handle browser automation and LLM inference outside the HTTP request lifecycle.
 - 🛡️ **Self-Healing & Resilient Test Execution**: Built-in retry strategies, dynamic element matching, and robust auto-waiting against modern single-page applications (SPAs).
 - 📸 **Cloud Artifact Storage**: Captures full-page screenshots upon test failures and securely uploads them to Supabase Storage with public CDN URLs and database persistence.
@@ -57,7 +57,7 @@ flowchart TD
     subgraph External ["Automation & AI Engines"]
         PW["Playwright Headless Browser\n(Chromium)"]
         TargetApp["Target Web Application"]
-        Ollama["Ollama Local LLM\n(:11434)"]
+        Gemini["Google Gemini API\n(gemini-1.5-flash)"]
     end
 
     subgraph Cloud ["Supabase Cloud"]
@@ -82,8 +82,8 @@ flowchart TD
     PW -->|Upload Screenshots| Storage
     Storage -.->|CDN Public URL| Prisma
 
-    AIWorker -->|Analyze Traces| Ollama
-    Routes -->|Synthesize Tests| Ollama
+    AIWorker -->|Analyze Traces| Gemini
+    Routes -->|Synthesize Tests| Gemini
     AIWorker -.->|Store Failure Diagnosis| Prisma
 ```
 
@@ -98,7 +98,7 @@ flowchart TD
 | **Backend API** | [Node.js](https://nodejs.org/) + [Express 5](https://expressjs.com/) + [TypeScript](https://www.typescriptlang.org/) | Type-safe RESTful API services |
 | **Database & ORM** | [Supabase PostgreSQL](https://supabase.com/) + [Prisma 6.19](https://www.prisma.io/) | Relational persistence, schema migrations, type-safe queries |
 | **Browser Automation** | [Playwright Core](https://playwright.dev/) | Headless DOM discovery, element telemetry, and test execution |
-| **AI Inference** | [Ollama](https://ollama.ai/) (`qwen3:4b`, `llama3.2`, `deepseek-r1`) | Local LLM inference for test synthesis and failure root-cause diagnosis |
+| **AI Inference** | [Google Gemini](https://aistudio.google.com/) (`gemini-1.5-flash`, `gemini-2.0-flash`) | Cloud LLM inference for test synthesis and failure root-cause diagnosis |
 | **Job Queues** | [BullMQ](https://docs.bullmq.io/) + [Redis / ioredis](https://redis.io/) | Asynchronous, concurrent job processing and worker lifecycle |
 | **Cloud Storage** | [Supabase Storage](https://supabase.com/storage) | Cloud storage for failure screenshots (`test-artifacts` bucket) |
 | **Validation & Auth** | [Zod](https://zod.dev/) + [bcrypt](https://github.com/kelektiv/node.bcrypt.js) + [JWT](https://jwt.io/) | Request validation and secure HTTP-only cookie authentication |
@@ -120,7 +120,7 @@ ai-tester-platform/
 │   │   ├── routes/                 # Express API routes
 │   │   ├── schemas/                # Zod validation schemas
 │   │   ├── services/
-│   │   │   ├── ai/                 # Ollama provider, prompts, and failure triage logic
+│   │   │   ├── ai/                 # Gemini provider, prompts, and failure triage logic
 │   │   │   ├── browser/            # Playwright crawler & step execution engine
 │   │   │   ├── storage/            # Supabase Storage & local disk artifact services
 │   │   │   ├── auth.service.ts     # User registration, bcrypt hash, JWT signing
@@ -161,7 +161,7 @@ Before setting up the platform, ensure you have the following installed on your 
 1. **Node.js**: Version `18.18+` or `20.x+` ([Download Node.js](https://nodejs.org/))
 2. **Git**: Version `2.x+`
 3. **Redis**: Local server or managed service (e.g., [Upstash](https://upstash.com/) or Docker `docker run -p 6379:6379 redis:alpine`)
-4. **Ollama**: Local AI runner ([Download Ollama](https://ollama.ai/))
+4. **Google Gemini API Key**: Free API key from [Google AI Studio](https://aistudio.google.com/)
 5. **Supabase Account**: For PostgreSQL database and Storage ([Supabase](https://supabase.com/))
 
 ---
@@ -185,8 +185,8 @@ Configure the following variables:
 | `DIRECT_URL` | Direct PostgreSQL connection string for Prisma migrations | `postgresql://postgres.[ref]:[pass]@aws-0-[region].pooler.supabase.com:5432/postgres` |
 | `JWT_SECRET` | Secret string for signing authentication tokens | `your-secure-random-secret-key-32-chars` |
 | `REDIS_URL` | Redis connection URL | `redis://localhost:6379` |
-| `OLLAMA_BASE_URL` | Base URL where Ollama daemon is running | `http://localhost:11434` |
-| `OLLAMA_MODEL` | Ollama model tag for synthesis and failure triage | `qwen3:4b` *(or `llama3.2`, `deepseek-r1`)* |
+| `GEMINI_API_KEY` | Google Gemini API key from Google AI Studio | `AIzaSy...` |
+| `GEMINI_MODEL` | Gemini model name for synthesis and failure triage | `gemini-1.5-flash` *(or `gemini-2.0-flash`)* |
 | `FRONTEND_URL` | URL of the frontend Next.js application | `http://localhost:3000` |
 | `TEST_WORKER_CONCURRENCY` | Number of simultaneous browser test jobs per worker | `1` |
 | `ALLOW_LOCAL_URLS` | Allow testing against `localhost` and internal IPs | `true` |
@@ -237,18 +237,15 @@ cd ai-tester
 
 ---
 
-### Step 3: Setup Ollama (Local AI Model)
+### Step 3: Setup Google Gemini API Key
 
-1. Install Ollama from [ollama.ai](https://ollama.ai/).
-2. Pull your preferred model (e.g., `qwen3:4b` or `llama3.2`):
+1. Visit [Google AI Studio](https://aistudio.google.com/).
+2. Click **Get API key** and create a new API key (100% free tier available).
+3. Add your key to `backend/.env`:
    ```bash
-   ollama pull qwen3:4b
+   GEMINI_API_KEY=your_gemini_api_key_here
+   GEMINI_MODEL=gemini-1.5-flash
    ```
-3. Start the Ollama server:
-   ```bash
-   ollama serve
-   ```
-4. Verify the server is running by visiting `http://localhost:11434/api/tags`.
 
 ---
 
@@ -314,7 +311,7 @@ sequenceDiagram
     participant DB as PostgreSQL
     participant Worker as BullMQ Worker
     participant PW as Playwright Engine
-    participant Ollama as Ollama LLM
+    participant Gemini as Google Gemini
     participant Storage as Supabase Storage
 
     User->>Frontend: 1. Sign up / Login
@@ -333,8 +330,8 @@ sequenceDiagram
 
     User->>Frontend: 4. Click "Generate Test Cases"
     Frontend->>Backend: POST /api/projects/:id/test-cases/generate
-    Backend->>Ollama: Prompt with DOM Telemetry
-    Ollama-->>Backend: Synthesized Test Cases (JSON)
+    Backend->>Gemini: Prompt with DOM Telemetry
+    Gemini-->>Backend: Synthesized Test Cases (JSON)
     Backend->>DB: Save TestCases
 
     User->>Frontend: 5. Click "Run Tests"
@@ -345,8 +342,8 @@ sequenceDiagram
     alt Step Fails
         PW->>Storage: Upload Failure Screenshot
         Storage-->>PW: Return Screenshot CDN URL
-        Worker->>Ollama: Request Failure Diagnosis
-        Ollama-->>Worker: Root Cause & Suggested Fix
+        Worker->>Gemini: Request Failure Diagnosis
+        Gemini-->>Worker: Root Cause & Suggested Fix
     end
     Worker->>DB: Save TestResults & AI Diagnosis
 
@@ -358,7 +355,7 @@ sequenceDiagram
 1. **Register & Log In**: Visit `http://localhost:3000/register` to create an account.
 2. **Create a Project**: Click **+ New Project**, provide a title (e.g. `My Storefront`) and a URL (e.g., `https://demo.playwright.dev/todomvc`).
 3. **Analyze Target**: Inside the project dashboard, click **Analyze Application** to let Playwright map the application's forms, buttons, and navigation hierarchy.
-4. **Generate AI Test Cases**: Click **Generate Tests**, choose focus areas (Happy path, Form validation, Edge cases), and let Ollama synthesize tests.
+4. **Generate AI Test Cases**: Click **Generate Tests**, choose focus areas (Happy path, Form validation, Edge cases), and let Gemini synthesize tests.
 5. **Execute Test Run**: Click **Run All Tests**. The BullMQ worker executes steps live using headless Chromium.
 6. **Inspect Results & AI Root Cause**: Open the test run details to inspect passed/failed steps, failure screenshots, error logs, and the AI's step-by-step remediation guide.
 
@@ -394,7 +391,7 @@ All protected endpoints require a valid JWT cookie set via `/api/auth/login` or 
 ### Test Cases (`/api/projects/:id/test-cases` & `/api/test-cases`)
 | Method | Endpoint | Description |
 | :--- | :--- | :--- |
-| `POST` | `/api/projects/:projectId/test-cases/generate` | Synthesize new test cases using Ollama |
+| `POST` | `/api/projects/:projectId/test-cases/generate` | Synthesize new test cases using Google Gemini |
 | `GET` | `/api/projects/:projectId/test-cases` | List all test cases for a project |
 | `DELETE` | `/api/projects/:projectId/test-cases` | Clear all test cases for a project |
 | `GET` | `/api/test-cases/:testCaseId` | Get single test case with steps |
@@ -419,16 +416,10 @@ All protected endpoints require a valid JWT cookie set via `/api/auth/login` or 
   - Windows / macOS: Start your local Redis service or check Docker with `docker ps`.
   - Cloud: If using Upstash, verify the `REDIS_URL` in `backend/.env` is in `rediss://...` format.
 
-### 2. Ollama Connection Refused (`fetch failed: ECONNREFUSED 127.0.0.1:11434`)
-- Confirm Ollama is running:
-  ```bash
-  ollama serve
-  ```
-- Test connectivity in your browser or with curl:
-  ```bash
-  curl http://localhost:11434/api/tags
-  ```
-- Ensure the model specified in `backend/.env` (`OLLAMA_MODEL`) is pulled (`ollama pull qwen3:4b`).
+### 2. Gemini API Errors / Rate Limits (403 / 429)
+- Confirm that `GEMINI_API_KEY` is present in `backend/.env`.
+- Ensure your key is valid and has not exceeded the 15 RPM / 1,500 RPD free tier limits on [Google AI Studio](https://aistudio.google.com/).
+- If the API key is not configured, the platform automatically relies on its built-in deterministic heuristic engine as a fallback.
 
 ### 3. Playwright Chromium Missing
 > `Executable doesn't exist at C:\Users\...\AppData\Local\ms-playwright\chromium-...`

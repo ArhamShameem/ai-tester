@@ -16,15 +16,16 @@ import {
 import { buildTestGenerationPrompt } from "./prompts/test-generation.prompt";
 import { buildFailureAnalysisPrompt } from "./prompts/failure-analysis.prompt";
 
-export class OllamaProvider implements AIProvider {
-  public readonly name = "Ollama";
-  private baseUrl: string;
+export class GeminiProvider implements AIProvider {
+  public readonly name = "Gemini";
+  private apiKey: string;
   private model: string;
+  private baseUrl: string;
 
-  constructor(baseUrl?: string, model?: string) {
-    const rawUrl = baseUrl || process.env.OLLAMA_BASE_URL || "http://127.0.0.1:11434";
-    this.baseUrl = rawUrl.replace(/\/$/, "").replace("//localhost:", "//127.0.0.1:");
-    this.model = model || process.env.OLLAMA_MODEL || "qwen3:4b";
+  constructor(apiKey?: string, model?: string) {
+    this.apiKey = apiKey || process.env.GEMINI_API_KEY || "";
+    this.model = model || process.env.GEMINI_MODEL || "gemini-3.8-flash";
+    this.baseUrl = "https://generativelanguage.googleapis.com/v1beta";
   }
 
   /**
@@ -34,40 +35,49 @@ export class OllamaProvider implements AIProvider {
     analysis: StructuredAnalysis,
     options?: TestGenerationOptions
   ): Promise<GeneratedTestCasesOutput> {
+    if (!this.apiKey) {
+      console.warn(
+        "[GeminiProvider] GEMINI_API_KEY is not configured in environment. Falling back to deterministic heuristic generator."
+      );
+      const fallbackTests = this.generateHeuristicTestCases(analysis, options);
+      return {
+        testCases: fallbackTests,
+        source: "Deterministic Heuristic Engine (Gemini API Key Missing)"
+      };
+    }
+
     const prompt = buildTestGenerationPrompt(analysis, options);
     const targetCount = options?.count ? Math.min(15, Math.max(1, options.count)) : 5;
-    const numPredict = Math.min(3072, Math.max(768, targetCount * 240));
-    const timeoutMs = Math.min(360000, Math.max(180000, targetCount * 45000));
 
     try {
       console.log(
-        `[OllamaProvider] Calling Ollama (${this.model}) for ${targetCount} tests${
+        `[GeminiProvider] Calling Google Gemini (${this.model}) for ${targetCount} tests${
           options?.context ? ` with context: "${options.context.slice(0, 50)}..."` : ""
         }...`
       );
-      const rawResponse = await this.callOllamaApi(prompt, timeoutMs, {
-        num_predict: numPredict
-      });
+
+      const rawResponse = await this.callGeminiApi(prompt, 45000);
       const parsedJson = this.extractAndParseJson(rawResponse);
       const sanitizedCases = this.sanitizeTestCases(parsedJson, analysis.url);
       const validated = generatedTestCasesSchema.safeParse({ testCases: sanitizedCases });
 
       if (validated.success && validated.data.testCases.length > 0) {
         console.log(
-          `[OllamaProvider] Successfully generated ${validated.data.testCases.length} tests using Ollama (${this.model})`
+          `[GeminiProvider] Successfully generated ${validated.data.testCases.length} tests using Gemini (${this.model})`
         );
         return {
           testCases: validated.data.testCases,
-          source: `Ollama (${this.model})`
+          source: `Google Gemini (${this.model})`
         };
       }
+
       console.warn(
-        "[OllamaProvider] Response did not conform to test case schema after sanitization. Falling back to heuristic generator.",
+        "[GeminiProvider] Response did not conform to test case schema after sanitization. Falling back to heuristic generator.",
         JSON.stringify(validated.error?.issues, null, 2)
       );
     } catch (err) {
       console.warn(
-        `[OllamaProvider] Ollama call failed or unreachable (${this.baseUrl}, model: ${this.model}). Using heuristic test generator fallback. Reason:`,
+        `[GeminiProvider] Gemini API call failed (model: ${this.model}). Using heuristic test generator fallback. Reason:`,
         err instanceof Error ? err.message : String(err)
       );
     }
@@ -76,7 +86,7 @@ export class OllamaProvider implements AIProvider {
     const fallbackTests = this.generateHeuristicTestCases(analysis, options);
     return {
       testCases: fallbackTests,
-      source: "Deterministic Heuristic Engine (Ollama Offline)"
+      source: "Deterministic Heuristic Engine (Gemini Offline)"
     };
   }
 
@@ -84,27 +94,39 @@ export class OllamaProvider implements AIProvider {
    * Analyzes a test execution failure and suggests root causes and fixes.
    */
   async analyzeFailure(input: FailureAnalysisInput): Promise<FailureAnalysisResult> {
+    if (!this.apiKey) {
+      console.warn(
+        "[GeminiProvider] GEMINI_API_KEY is not configured in environment. Using heuristic failure diagnosis."
+      );
+      const fallbackAnalysis = this.generateHeuristicFailureAnalysis(input);
+      return {
+        ...fallbackAnalysis,
+        source: "Deterministic Heuristic Engine (Gemini API Key Missing)"
+      };
+    }
+
     const prompt = buildFailureAnalysisPrompt(input);
 
     try {
-      console.log(`[OllamaProvider] Calling Ollama for failure triage at ${this.baseUrl}...`);
-      const rawResponse = await this.callOllamaApi(prompt, 60000);
+      console.log(`[GeminiProvider] Calling Google Gemini (${this.model}) for failure triage...`);
+      const rawResponse = await this.callGeminiApi(prompt, 30000);
       const parsedJson = this.extractAndParseJson(rawResponse);
       const validated = failureAnalysisSchema.safeParse(parsedJson);
 
       if (validated.success) {
         return {
           ...validated.data,
-          source: `Ollama (${this.model})`
+          source: `Google Gemini (${this.model})`
         };
       }
+
       console.warn(
-        "[OllamaProvider] Failure analysis response did not conform to schema. Using heuristic diagnosis.",
+        "[GeminiProvider] Failure analysis response did not conform to schema. Using heuristic diagnosis.",
         validated.error?.format()
       );
     } catch (err) {
       console.warn(
-        `[OllamaProvider] Ollama failure analysis unreachable. Using heuristic diagnosis. Reason:`,
+        `[GeminiProvider] Gemini failure analysis failed. Using heuristic diagnosis. Reason:`,
         err instanceof Error ? err.message : String(err)
       );
     }
@@ -112,8 +134,118 @@ export class OllamaProvider implements AIProvider {
     const fallbackAnalysis = this.generateHeuristicFailureAnalysis(input);
     return {
       ...fallbackAnalysis,
-      source: "Deterministic Heuristic Engine (Ollama Offline)"
+      source: "Deterministic Heuristic Engine (Gemini Offline)"
     };
+  }
+
+  /**
+   * Calls the Google Gemini REST generateContent API with application/json response format and backup model failover.
+   */
+  private async callGeminiApi(prompt: string, timeoutMs: number = 45000): Promise<string> {
+    const modelsToTry = [
+      this.model,
+      this.model === "gemini-3.8-flash" ? "gemini-3.6-flash" : "gemini-3.8-flash"
+    ];
+
+    let lastError: Error | null = null;
+
+    for (const currentModel of modelsToTry) {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+      const url = `${this.baseUrl}/models/${encodeURIComponent(currentModel)}:generateContent?key=${encodeURIComponent(
+        this.apiKey
+      )}`;
+
+      try {
+        const response = await fetch(url, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          signal: controller.signal,
+          body: JSON.stringify({
+            contents: [
+              {
+                role: "user",
+                parts: [{ text: prompt }]
+              }
+            ],
+            generationConfig: {
+              temperature: 0.1,
+              responseMimeType: "application/json"
+            }
+          })
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text().catch(() => "");
+          const isRetryable = response.status === 503 || response.status === 429;
+          const err = new Error(
+            `Gemini API HTTP ${response.status} ${response.statusText}: ${errorText.slice(0, 300)}`
+          );
+          lastError = err;
+          if (isRetryable && currentModel !== modelsToTry[modelsToTry.length - 1]) {
+            console.warn(
+              `[GeminiProvider] ${currentModel} returned ${response.status}. Retrying with backup model ${modelsToTry[1]}...`
+            );
+            continue;
+          }
+          throw err;
+        }
+
+        const data = (await response.json()) as {
+          candidates?: Array<{
+            content?: {
+              parts?: Array<{ text?: string }>;
+            };
+          }>;
+        };
+
+        const candidateText = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "";
+
+        if (!candidateText) {
+          throw new Error("Empty candidate text in Gemini API response");
+        }
+
+        return candidateText;
+      } catch (err) {
+        lastError = err instanceof Error ? err : new Error(String(err));
+        if (currentModel !== modelsToTry[modelsToTry.length - 1]) {
+          continue;
+        }
+        throw lastError;
+      } finally {
+        clearTimeout(timeoutId);
+      }
+    }
+
+    throw lastError || new Error("Gemini API call failed");
+  }
+
+  /**
+   * Extracts JSON from LLM output even if wrapped with markdown ticks or reasoning tags.
+   */
+  private extractAndParseJson(raw: string): unknown {
+    let text = raw.trim();
+
+    // Strip <think>...</think> if present
+    text = text.replace(/<think>[\s\S]*?<\/think>/gi, "").trim();
+
+    // Strip possible ```json ... ``` code fence
+    const codeBlockMatch = text.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
+    if (codeBlockMatch) {
+      text = codeBlockMatch[1].trim();
+    } else {
+      // Find outermost JSON object { ... }
+      const firstBrace = text.indexOf("{");
+      const lastBrace = text.lastIndexOf("}");
+      if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+        text = text.substring(firstBrace, lastBrace + 1);
+      }
+    }
+
+    return JSON.parse(text);
   }
 
   /**
@@ -177,7 +309,6 @@ export class OllamaProvider implements AIProvider {
         if (!resolvedAction) continue;
 
         let target = String(st.target || "").trim();
-        // If navigate has an empty target, default to the analyzed URL
         if (resolvedAction === "navigate" && !target) {
           target = defaultUrl;
         }
@@ -210,123 +341,7 @@ export class OllamaProvider implements AIProvider {
   }
 
   /**
-   * Auto-resolves model name against installed models in Ollama
-   */
-  private async resolveModelName(): Promise<string> {
-    try {
-      const res = await fetch(`${this.baseUrl}/api/tags`);
-      if (res.ok) {
-        const data = (await res.json()) as { models?: Array<{ name: string }> };
-        const available = data.models?.map((m) => m.name) || [];
-        if (available.length > 0) {
-          const match = available.find(
-            (m) =>
-              m === this.model ||
-              m.startsWith(`${this.model}:`) ||
-              this.model.startsWith(`${m}:`)
-          );
-          if (match) {
-            this.model = match;
-            return this.model;
-          }
-          console.log(
-            `[OllamaProvider] Model "${this.model}" not found in local tags. Auto-switching to available model "${available[0]}".`
-          );
-          this.model = available[0];
-          return this.model;
-        }
-      }
-    } catch {}
-    return this.model;
-  }
-
-  /**
-   * Performs an HTTP request to Ollama with AbortController timeout.
-   */
-  private async callOllamaApi(
-    prompt: string,
-    timeoutMs: number,
-    customOptions?: Record<string, any>
-  ): Promise<string> {
-    await this.resolveModelName();
-
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
-
-    try {
-      const response = await fetch(`${this.baseUrl}/api/generate`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        signal: controller.signal,
-        body: JSON.stringify({
-          model: this.model,
-          prompt,
-          stream: false,
-          format: "json",
-          options: {
-            temperature: 0.1,
-            num_ctx: 4096,
-            num_predict: 1024,
-            ...customOptions
-          }
-        })
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text().catch(() => "");
-        throw new Error(
-          `Ollama HTTP ${response.status} ${response.statusText}: ${errorText.slice(0, 200)}`
-        );
-      }
-
-      const data = (await response.json()) as {
-        response?: string;
-        thinking?: string;
-      };
-
-      const text =
-        (data.response && data.response.trim()) ||
-        (data.thinking && data.thinking.trim()) ||
-        "";
-
-      if (!text) {
-        throw new Error("Empty response envelope from Ollama");
-      }
-
-      return text;
-    } finally {
-      clearTimeout(timeoutId);
-    }
-  }
-
-  /**
-   * Extracts JSON from LLM output even if wrapped with markdown ticks or reasoning tags.
-   */
-  private extractAndParseJson(raw: string): unknown {
-    let text = raw.trim();
-
-    // Strip <think>...</think> emitted by reasoning models like Qwen/DeepSeek
-    text = text.replace(/<think>[\s\S]*?<\/think>/gi, "").trim();
-
-    // Strip possible ```json ... ``` code fence
-    const codeBlockMatch = text.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
-    if (codeBlockMatch) {
-      text = codeBlockMatch[1].trim();
-    } else {
-      // Find outermost JSON object { ... }
-      const firstBrace = text.indexOf("{");
-      const lastBrace = text.lastIndexOf("}");
-      if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
-        text = text.substring(firstBrace, lastBrace + 1);
-      }
-    }
-
-    return JSON.parse(text);
-  }
-
-  /**
    * Deterministic test case synthesizer using crawled application analysis.
-   * Generates up to targetCount tests and prioritizes user context if provided.
    */
   private generateHeuristicTestCases(
     analysis: StructuredAnalysis,
@@ -348,10 +363,12 @@ export class OllamaProvider implements AIProvider {
           target: analysis.headings?.[0]?.text || "body"
         }
       ],
-      expectedResult: `Application loads successfully and displays the primary heading "${analysis.headings?.[0]?.text || analysis.title}".`
+      expectedResult: `Application loads successfully and displays the primary heading "${
+        analysis.headings?.[0]?.text || analysis.title
+      }".`
     });
 
-    // Test 2: Interactive Form Input Test (valid inputs)
+    // Test 2: Interactive Form Input Test
     if (analysis.inputs && analysis.inputs.length > 0) {
       const inputSteps = analysis.inputs.slice(0, 4).map((inp) => {
         let sampleVal = "test-input";
@@ -392,7 +409,8 @@ export class OllamaProvider implements AIProvider {
 
       testCases.push({
         title: "Form Input & Interactive Field Entry",
-        description: "Verify that user can type valid data into interactive input fields without validation crashes.",
+        description:
+          "Verify that user can type valid data into interactive input fields without validation crashes.",
         steps,
         expectedResult: "Form fields accept user input and submit action executes without UI error."
       });
@@ -402,13 +420,15 @@ export class OllamaProvider implements AIProvider {
       if (requiredInput && submitBtn) {
         testCases.push({
           title: "Form Validation: Required Field Enforcement",
-          description: "Verify that submitting the form without filling required inputs is prevented or prompts validation error.",
+          description:
+            "Verify that submitting the form without filling required inputs is prevented or prompts validation error.",
           steps: [
             { action: "navigate", target: analysis.url },
             { action: "click", target: submitBtn.text || submitBtn.ariaLabel || "button" },
             { action: "assertURL", target: analysis.url }
           ],
-          expectedResult: "Form submission is halted and user remains on current page or sees validation prompt."
+          expectedResult:
+            "Form submission is halted and user remains on current page or sees validation prompt."
         });
       }
     }
@@ -430,47 +450,13 @@ export class OllamaProvider implements AIProvider {
       }
     }
 
-    // Test 7-10: Multiple Interactive Button Actions
-    if (analysis.buttons && analysis.buttons.length > 0) {
-      const distinctButtons = analysis.buttons
-        .filter((b) => b.text && b.text.trim().length > 1)
-        .slice(0, 5);
-
-      for (const button of distinctButtons) {
-        const btnText = button.text.trim();
-        // Avoid duplicate title
-        if (testCases.some((tc) => tc.title.includes(`"${btnText}"`))) continue;
-
-        testCases.push({
-          title: `Action Button Trigger: "${btnText}"`,
-          description: `Verify clicking the "${btnText}" button triggers expected UI interaction without throwing exceptions.`,
-          steps: [
-            { action: "navigate", target: analysis.url },
-            { action: "assertVisible", target: btnText },
-            { action: "click", target: btnText }
-          ],
-          expectedResult: `Button "${btnText}" responds to click event and application state remains stable.`
-        });
-      }
-    }
-
-    // Test: Heading & Content Verification
-    if (analysis.headings && analysis.headings.length > 1) {
-      const secondaryHeading = analysis.headings[1].text.trim();
-      testCases.push({
-        title: `Content Hierarchy: "${secondaryHeading.slice(0, 40)}"`,
-        description: `Verify that secondary content section "${secondaryHeading}" is visible on the page.`,
-        steps: [
-          { action: "navigate", target: analysis.url },
-          { action: "assertVisible", target: secondaryHeading }
-        ],
-        expectedResult: `Page renders secondary section heading "${secondaryHeading}".`
-      });
-    }
-
-    // Prioritize test cases matching user context keywords
+    // Context Prioritization
     if (userContext) {
-      const keywords = userContext.split(/\s+/).filter((k) => k.length > 2);
+      const keywords = userContext
+        .split(/\W+/)
+        .map((k) => k.trim())
+        .filter((k) => k.length >= 3);
+
       testCases.sort((a, b) => {
         const aMatch = keywords.some(
           (k) =>
@@ -494,14 +480,17 @@ export class OllamaProvider implements AIProvider {
   }
 
   /**
-   * Deterministic failure diagnosis when Ollama service is unavailable.
+   * Deterministic failure diagnosis when Gemini service is unavailable.
    */
-  private generateHeuristicFailureAnalysis(
-    input: FailureAnalysisInput
-  ): FailureAnalysisResult {
+  private generateHeuristicFailureAnalysis(input: FailureAnalysisInput): FailureAnalysisResult {
     const err = input.errorMessage.toLowerCase();
 
-    if (err.includes("timeout") && (err.includes("waiting for locator") || err.includes("waiting for selector") || err.includes("getby"))) {
+    if (
+      err.includes("timeout") &&
+      (err.includes("waiting for locator") ||
+        err.includes("waiting for selector") ||
+        err.includes("getby"))
+    ) {
       return {
         rootCause: "Target Element Locator Timeout",
         explanation: `The browser timed out waiting for the target element to appear in the DOM. The selector or accessible name may have changed or the element rendered after an asynchronous delay.`,
@@ -528,7 +517,10 @@ export class OllamaProvider implements AIProvider {
       };
     }
 
-    if (err.includes("expected") && (err.includes("received") || err.includes("to have text") || err.includes("to have url"))) {
+    if (
+      err.includes("expected") &&
+      (err.includes("received") || err.includes("to have text") || err.includes("to have url"))
+    ) {
       return {
         rootCause: "Assertion Mismatch",
         explanation: `The observed application state did not match the expected assertion value. Either the feature behavior changed or the expected value in the test definition was inaccurate.`,
@@ -540,7 +532,8 @@ export class OllamaProvider implements AIProvider {
     return {
       rootCause: "Test Execution Step Interruption",
       explanation: `The test failed with the following message: ${input.errorMessage.slice(0, 150)}`,
-      suggestedFix: "Inspect application logs and browser screenshots to confirm UI state at the moment of failure.",
+      suggestedFix:
+        "Inspect application logs and browser screenshots to confirm UI state at the moment of failure.",
       confidence: 0.7
     };
   }
