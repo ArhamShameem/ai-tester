@@ -16,6 +16,9 @@ import { errorMiddleware } from "./middleware/error.middleware";
 
 const app = express();
 
+// Trust reverse proxy (essential on Render, Railway, etc. for secure cookies)
+app.set("trust proxy", 1);
+
 const allowedOrigins = [
   "http://localhost:3000",
   "http://localhost:3001",
@@ -24,8 +27,8 @@ const allowedOrigins = [
 
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow requests with no origin (like mobile apps, curl, server-to-server)
-    if (!origin || allowedOrigins.includes(origin)) {
+    // Allow requests with no origin (mobile, curl) or matching allowed origins
+    if (!origin || allowedOrigins.includes(origin) || origin.endsWith(".vercel.app")) {
       return callback(null, true);
     }
     return callback(null, false);
