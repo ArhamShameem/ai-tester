@@ -24,7 +24,7 @@ export class GeminiProvider implements AIProvider {
 
   constructor(apiKey?: string, model?: string) {
     this.apiKey = apiKey || process.env.GEMINI_API_KEY || "";
-    this.model = model || process.env.GEMINI_MODEL || "gemini-3.8-flash";
+    this.model = model || process.env.GEMINI_MODEL || "gemini-3.5-flash-lite";
     this.baseUrl = "https://generativelanguage.googleapis.com/v1beta";
   }
 
@@ -142,10 +142,14 @@ export class GeminiProvider implements AIProvider {
    * Calls the Google Gemini REST generateContent API with application/json response format and backup model failover.
    */
   private async callGeminiApi(prompt: string, timeoutMs: number = 45000): Promise<string> {
-    const modelsToTry = [
-      this.model,
-      this.model === "gemini-3.8-flash" ? "gemini-3.6-flash" : "gemini-3.8-flash"
-    ];
+    const modelsToTry = Array.from(
+      new Set([
+        this.model,
+        "gemini-3.5-flash-lite",
+        "gemini-3.1-flash-lite",
+        "gemini-3.8-flash"
+      ])
+    );
 
     let lastError: Error | null = null;
 
