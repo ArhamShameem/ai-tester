@@ -5,7 +5,14 @@ import { Navbar } from "../components/navbar";
 
 export const metadata: Metadata = {
   title: "AI Tester Platform — Automated AI Testing",
-  description: "Playwright-based automated testing platform powered by Google Gemini AI and intelligent failure diagnosis."
+  description: "Playwright-based automated testing platform powered by Google Gemini AI and intelligent failure diagnosis.",
+  icons: {
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+    ],
+    shortcut: "/icon.svg",
+    apple: "/icon.svg",
+  },
 };
 
 export default function RootLayout({

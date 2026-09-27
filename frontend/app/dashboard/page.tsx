@@ -182,9 +182,21 @@ function DashboardContent() {
                 Backend API
               </span>
               <div className="flex items-center gap-2 mt-1">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#2e633f] animate-pulse" />
+                <span
+                  className={`w-2.5 h-2.5 rounded-full ${
+                    healthStatus === "ok"
+                      ? "bg-[#2e633f]"
+                      : isCheckingHealth
+                      ? "bg-amber-500 animate-pulse"
+                      : "bg-rose-500"
+                  }`}
+                />
                 <span className="text-xs font-mono text-slate-700 font-medium">
-                  {healthStatus === "ok" ? "Port 4000 Connected" : "Connecting..."}
+                  {healthStatus === "ok"
+                    ? "Operational"
+                    : isCheckingHealth
+                    ? "Connecting..."
+                    : "Offline"}
                 </span>
               </div>
             </div>
