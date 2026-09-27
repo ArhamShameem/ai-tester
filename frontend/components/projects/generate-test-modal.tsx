@@ -72,7 +72,6 @@ export function GenerateTestModal({
       onClose={isGenerating ? () => {} : onClose}
       title="Generate AI Test Cases"
       description="Configure AI test synthesis parameters and provide optional instructions to steer what is tested."
-      size="lg"
     >
       <form onSubmit={handleSubmit} className="space-y-5">
         {/* Testing Focus / Context */}
