@@ -145,12 +145,6 @@ export default function RegisterPage() {
         <div className="lg:col-span-7 space-y-8 pr-0 lg:pr-6 text-left">
           {/* Badge */}
           <div className="inline-flex items-center gap-3 px-3.5 py-1.5 rounded-xl bg-white border border-[#dce3da] shadow-xs">
-            <span className="flex items-center gap-1 text-xs font-bold text-amber-600">
-              🏆 #1
-            </span>
-            <span className="text-xs text-slate-600 font-medium">
-              Product of the Day
-            </span>
             <span className="w-1.5 h-1.5 rounded-full bg-[#2e633f]" />
             <span className="text-2xs font-mono text-[#2e633f] font-semibold">
               End-to-End Test Synthesizer
