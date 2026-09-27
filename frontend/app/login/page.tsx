@@ -172,7 +172,7 @@ export default function LoginPage() {
             </div>
             <div className="flex items-center gap-2">
               <Zap className="w-4 h-4 text-[#2e633f]" />
-              <span>Ollama Local AI Models</span>
+              <span>Google Gemini AI</span>
             </div>
             <div className="flex items-center gap-2">
               <Terminal className="w-4 h-4 text-[#2e633f]" />

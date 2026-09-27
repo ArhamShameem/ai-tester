@@ -5,7 +5,7 @@ import { Navbar } from "../components/navbar";
 
 export const metadata: Metadata = {
   title: "AI Tester Platform — Automated AI Testing",
-  description: "Playwright-based automated testing platform powered by local AI and intelligent failure diagnosis."
+  description: "Playwright-based automated testing platform powered by Google Gemini AI and intelligent failure diagnosis."
 };
 
 export default function RootLayout({

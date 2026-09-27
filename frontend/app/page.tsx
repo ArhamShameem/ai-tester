@@ -113,7 +113,7 @@ export default function HomePage() {
               {/* Code & Assertion Preview */}
               <div className="p-5 font-mono text-xs space-y-3 bg-[#fbfcfb]">
                 <div className="text-slate-500 flex items-center justify-between pb-2 border-b border-[#e5ebe3]">
-                  <span>$ agy test --url=https://your-app.com --ai=ollama</span>
+                  <span>$ agy test --url=https://your-app.com --ai=gemini</span>
                   <span className="text-2xs text-[#2e633f] font-bold">● RUNNING</span>
                 </div>
 
@@ -130,7 +130,7 @@ export default function HomePage() {
                   </div>
                   <div className="flex items-center gap-2 text-slate-700">
                     <CheckCircle2 className="w-4 h-4 text-[#2e633f] shrink-0" />
-                    <span>Synthesized 5 end-to-end user journeys with Ollama Qwen3:4b</span>
+                    <span>Synthesized 5 end-to-end user journeys with Google Gemini</span>
                     <span className="ml-auto text-slate-400 text-2xs">1.2s</span>
                   </div>
                   <div className="flex items-center gap-2 bg-[#eef5ed] text-[#234e32] p-2.5 rounded-xl border border-[#cfe2cd] font-semibold">
@@ -172,9 +172,9 @@ export default function HomePage() {
               <div className="w-10 h-10 rounded-xl bg-[#eef4ed] border border-[#d0dfcc] flex items-center justify-center text-[#2e633f] font-bold text-sm">
                 02
               </div>
-              <h3 className="font-bold text-slate-900 text-base">Local AI Generation</h3>
+              <h3 className="font-bold text-slate-900 text-base">Gemini AI Generation</h3>
               <p className="text-xs text-slate-600 leading-relaxed">
-                Ollama / local LLMs generate rigorous functional test cases validated strictly against Zod schemas.
+                Google Gemini Flash models generate rigorous functional test cases validated strictly against Zod schemas.
               </p>
             </Card>
 
